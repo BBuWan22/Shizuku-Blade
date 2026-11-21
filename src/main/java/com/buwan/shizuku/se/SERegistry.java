@@ -5,22 +5,14 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
-import static com.buwan.shizuku.shizuku.MODID;
-
 public class SERegistry {
-    public static final DeferredRegister<SpecialEffect> REGISTRY_KEY2;
-    public static final RegistryObject<SpecialEffect> SHIZUKU;
-    // 新增leise SE注册
-    public static final RegistryObject<SpecialEffect> LEISE;
+    public static final DeferredRegister<SpecialEffect> REGISTRY_KEY2 = DeferredRegister.create(SpecialEffect.REGISTRY_KEY, "shizuku");
+    public static final RegistryObject<SpecialEffect> SHIZUKU = REGISTRY_KEY2.register("shizuku", shizuku::new);
+    public static final RegistryObject<SpecialEffect> LEISE = REGISTRY_KEY2.register("leise", Leise::new);
+    public static final RegistryObject<SpecialEffect> JINGXIN = REGISTRY_KEY2.register("jingxin", Jingxin::new);
+    public static final RegistryObject<SpecialEffect> WORLDS_FAVORITE = REGISTRY_KEY2.register("worlds_favorite", WorldsFavorite::new);
 
-    static {
-        REGISTRY_KEY2 = DeferredRegister.create(SpecialEffect.REGISTRY_KEY, MODID);
-        SHIZUKU = REGISTRY_KEY2.register("shizuku", shizuku::new);
-        // 注册leise SE
-        LEISE = REGISTRY_KEY2.register("leise", Leise::new);
-    }
-
-    public static void register(IEventBus bus){
+    public static void register(IEventBus bus) {
         REGISTRY_KEY2.register(bus);
     }
 }

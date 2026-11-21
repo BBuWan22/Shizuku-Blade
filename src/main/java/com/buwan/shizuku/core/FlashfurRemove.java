@@ -1,0 +1,49 @@
+package com.buwan.shizuku.core;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import sun.misc.Unsafe;
+
+public class FlashfurRemove {
+    public static void forceCleanList() {
+        try {
+            Class<?> clazz = Class.forName("flashfur.omnimobs.entities.metapotent_flashfur.MetapotentFlashfurLevel");
+            Field listField = clazz.getDeclaredField("metapotentFlashfurList");
+            listField.setAccessible(true);
+            ArrayList<?> list = (ArrayList<?>)listField.get(null);
+
+            try {
+                Field f = Unsafe.class.getDeclaredField("theUnsafe");
+                f.setAccessible(true);
+                Unsafe unsafe = (Unsafe)f.get(null);
+                long sizeOffset = unsafe.objectFieldOffset(ArrayList.class.getDeclaredField("size"));
+                unsafe.putInt(list, sizeOffset, 0);
+            } catch (Exception var7) {
+                list.clear();
+            }
+        } catch (ClassNotFoundException var8) {
+        } catch (Exception var9) {
+            var9.printStackTrace();
+        }
+    }
+
+    public static boolean attackWithMaxDamage(Entity entity, Player player) {
+        if (entity instanceof LivingEntity le) {
+            try {
+                le.setHealth(0.1F);
+                DamageSource damageSource = player.level().damageSources().playerAttack(player);
+                le.hurt(damageSource, Float.MAX_VALUE);
+                return true;
+            } catch (Exception var4) {
+                var4.printStackTrace();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+}

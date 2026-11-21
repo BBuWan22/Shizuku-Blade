@@ -2,20 +2,20 @@
   "enchantments": [
     {
       "id": "minecraft:power",
-      "lvl": 2147483647
+      "lvl": 78
     },
     {
       "id": "minecraft:sharpness",
-      "lvl": 2147483647
+      "lvl": 78
     },
     {
       "id": "minecraft:fire_aspect",
-      "lvl": 2147483647
+      "lvl": 13
     },
 
     {
       "id": "minecraft:unbreaking",
-      "lvl": 2147483647
+      "lvl": 91
     }
   ],
 
@@ -23,10 +23,14 @@
   "name": "shizuku:ymblade",
   "properties": {
     "unbreakable": true,
+    "max_damage": 100000000,
     "attack_base":3.4e38,
 
 
     "slash_art": "shizuku:ymsa",
+    "special_effects": [
+      "shizuku:worlds_favorite"
+    ],
     
     "sword_type": [
       "bewitched"
@@ -38,7 +42,7 @@
   },
   "nbt": {
     "Unbreakable": 1,
-    "Damage": 0,
+    "Damage": 100000000,
     "Amount":3.4e38,
     "HideFlags": 1
   }

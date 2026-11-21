@@ -2,15 +2,15 @@
   "enchantments": [
     {
       "id": "minecraft:power",
-      "lvl": 20
+      "lvl": 10
     },
     {
       "id": "minecraft:sharpness",
-      "lvl": 20
+      "lvl": 10
     },
     {
       "id": "minecraft:fire_aspect",
-      "lvl": 10
+      "lvl": 5
     },
     {
       "id": "minecraft:looting",
