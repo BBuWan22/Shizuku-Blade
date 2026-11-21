@@ -65,6 +65,7 @@ side = "BOTH"
 modId = "slashblade"
 mandatory = true
 # This version range declares a minimum of the current minecraft version up to but not including the next major version
-versionRange = "1.2.30"
+# 与已发布 3.7.0 jar 对齐（原来的 1.2.30 是旧构建遗留，会让 3.7.0 声明过低的 SlashBlade 依赖）
+versionRange = "1.4.46"
 ordering = "NONE"
 side = "BOTH"
