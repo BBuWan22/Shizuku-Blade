@@ -18,6 +18,10 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「月光斩」：周期性的月光斩，用 activeSlashes 记录每个玩家的状态与间隔，
+ * playerTick 里推进，clearPlayerState 在登出/死亡时清理。
+ */
 public class MoonlightSlash {
     private static final int MOONLIGHT_COLOR = 14743295;
     private static final int SLASH_INTERVAL = 8;

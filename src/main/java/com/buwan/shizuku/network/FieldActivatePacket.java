@@ -8,6 +8,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+/**
+ * 客户端 -> 服务端：请求开关「星河领域」。空包（无字段）。
+ */
 public class FieldActivatePacket {
     public void encode(FriendlyByteBuf buf) {
     }

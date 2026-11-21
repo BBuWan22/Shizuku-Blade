@@ -8,6 +8,10 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * 物品注册表：喵石、工作台物品，以及 createProtectedBlade（把刀标记为「受保护」，
+ * 死亡不掉落）。
+ */
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "shizuku");
     public static final RegistryObject<Item> MEOW_STONE = ITEMS.register("meow_stone", () -> new Item(new Properties()));

@@ -32,6 +32,11 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * SE「世界之宠爱」：本 mod 最复杂的 SE（280 行），
+ * 给持有者叠加多层被动（攻击、受伤、药水、key 交互各一套事件），
+ * 并直接调用 AgentHealthMethodHelper 保证「不会被一击致死」。
+ */
 @EventBusSubscriber
 public class WorldsFavorite extends SpecialEffect {
     private static final Map<UUID, Boolean> coordinateShiftMode = new HashMap<>();

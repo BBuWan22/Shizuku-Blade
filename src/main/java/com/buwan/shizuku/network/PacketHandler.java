@@ -8,6 +8,11 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.TargetPoint;
 import net.minecraftforge.network.simple.SimpleChannel;
 
+/**
+ * SimpleChannel 的注册与发送工具：sendToPlayer / sendToNearby / sendToAll。
+ *
+ * 频道资源名固定为 shizuku:main，收发都走这里，便于统一版本号校验。
+ */
 public class PacketHandler {
     private static final String PROTOCOL_VERSION = "1";
     private static int packetId = 0;

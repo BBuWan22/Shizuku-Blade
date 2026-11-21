@@ -12,6 +12,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
+/**
+ * 「雷萨」：向准星方向连续放电式斩击，附带雷闪特殊效果（SE）。
+ */
 public class Leisa {
     private static final int PURPLE_COLOR = 10040319;
     private static final ResourceLocation[] LEISA_SOUNDS = new ResourceLocation[]{

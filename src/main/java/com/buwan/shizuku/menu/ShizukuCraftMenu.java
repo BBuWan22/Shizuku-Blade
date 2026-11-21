@@ -22,6 +22,13 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 工作台的容器菜单：9x9 输入 + 产物槽 + 玩家背包。
+ *
+ * - slotsChanged：输入变化时重新查找匹配配方（按 tier 过滤网格大小）；
+ * - quickMoveStack：Shift 点击在背包与输入区之间搬运；
+ * - stillValid：玩家离方块太远则关闭。
+ */
 public class ShizukuCraftMenu extends AbstractContainerMenu {
     public static final int GRID = 9;
     public static final int MAIN_X = 8;

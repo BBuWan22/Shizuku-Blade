@@ -21,6 +21,10 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「无限剑制」：在头顶生成一圈飞剑并依次射向目标，
+ * （Wireframe 空岛背景等表现由客户端渲染器负责）。
+ */
 public class UnlimitedBladeWorks {
     private static final int SWORD_COLOR = 16737095;
     private static final int SWORD_COUNT = 30;

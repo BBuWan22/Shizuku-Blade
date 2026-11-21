@@ -15,6 +15,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * 实体查询工具：给 Level 提供多种「取全部实体 / 取范围内实体」的实现
+ * （Method1~3 对应不同 API：getEntities、getEntitiesOfClass、遍历 section 等），
+ * 遇到某个 API 被其它 mod 改坏时可切换路径。
+ */
 public class Helper {
     public static List<Entity> getAllEntities_Method1(Level level) {
         List<Entity> entities = new ArrayList<>();

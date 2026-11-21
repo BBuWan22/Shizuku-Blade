@@ -21,6 +21,9 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「影萨」：生成跟随玩家的影刃，每 tick 寻找目标自动攻击。
+ */
 public class Yingsa {
     private static final Map<EntityAbstractSummonedSword, Yingsa.DelayedShootData> delayedSwords = new ConcurrentHashMap<>();
 

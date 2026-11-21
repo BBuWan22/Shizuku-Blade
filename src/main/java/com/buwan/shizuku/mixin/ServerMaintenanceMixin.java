@@ -8,6 +8,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 服务端 tick 末尾与停机时做清理（清空血量缓存、区域状态、黑名单等），
+ * 防止长时间运行后静态集合无限增长。
+ */
 @Mixin(MinecraftServer.class)
 public class ServerMaintenanceMixin {
     @Inject(method = "tickServer", at = @At("RETURN"))

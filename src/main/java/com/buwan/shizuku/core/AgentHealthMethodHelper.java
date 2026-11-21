@@ -5,6 +5,12 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * Agent 侧的血量读写入口：把「血量/最大血量」写进一个静态缓存，
+ * 供 AgentHealthTransformer 改写后的 getHealth()/getMaxHealth() 直接返回。
+ *
+ * 与反射方案的区别：这是真正的改字节码，所以对 final 字段、被覆写的 getter 也有效。
+ */
 public class AgentHealthMethodHelper {
     private static final Map<Object, AgentHealthMethodHelper.HealthData> HEALTH_MAP = Collections.synchronizedMap(new WeakHashMap<>());
 

@@ -12,6 +12,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * 掉落补发工具：手动调用实体的战利品表并生成掉落物 / 经验，
+ * 用于「绕过死亡流程直接删实体」时补上本该掉的战利品。
+ */
 public class DropLootHelper {
     public static void dropLoot(Entity entity, Player player, boolean forceAllDrops) {
         Level level = entity.level();

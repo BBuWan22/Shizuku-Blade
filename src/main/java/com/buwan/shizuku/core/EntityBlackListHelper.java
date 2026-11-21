@@ -8,6 +8,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * 实体 UUID 黑名单：被拉黑的实体每 tick 都会被检查并强制移除
+ * （名单是内存态，离开世界时 clearAll）。
+ */
 public class EntityBlackListHelper {
     private static final Map<UUID, Long> BLACKLIST_UUIDS = new ConcurrentHashMap<>();
     private static final long BLACKLIST_DURATION_MS = 2000L;

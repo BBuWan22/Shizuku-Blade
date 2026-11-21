@@ -10,6 +10,9 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * 喵石：纯粹的材料物品，只额外追加一行 tooltip。
+ */
 public class MeowStoneItem extends Item {
     public MeowStoneItem(Properties properties) {
         super(properties);

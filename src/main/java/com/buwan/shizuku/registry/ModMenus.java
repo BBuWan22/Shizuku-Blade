@@ -11,6 +11,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * 菜单注册表：工作台 MenuType，并注册客户端界面工厂（onClientSetup）。
+ */
 public class ModMenus {
     public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, "shizuku");
     public static final RegistryObject<MenuType<ShizukuCraftMenu>> SHIZUKU_CRAFT_TABLE = MENUS.register(

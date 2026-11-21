@@ -7,6 +7,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+/**
+ * 服务端 -> 客户端：开关合成波后处理。
+ */
 public class SynthwaveShaderPacket {
     private final boolean activate;
 

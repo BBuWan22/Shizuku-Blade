@@ -7,6 +7,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+/**
+ * @Invoker：调用 LivingEntity.dropAllDeathLoot，并在需要时读取 DATA_HEALTH_ID。
+ */
 @Mixin(LivingEntity.class)
 public interface LivingEntityAccessor {
     @Invoker("dropAllDeathLoot")

@@ -7,6 +7,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+/**
+ * 服务端 -> 客户端：同步时停的屏幕后处理强度（activate + strength），
+ * 用于让所有客户端看到同样的时间冻结观感。
+ */
 public class TimeStopShaderPacket {
     private final boolean activate;
     private final float strength;

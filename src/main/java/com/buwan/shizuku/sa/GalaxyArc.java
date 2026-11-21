@@ -19,6 +19,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 
+/**
+ * 「星河弧光」：先放一道放大的巨型刀光，再依次发射若干道气刃（fireQiSlash）。
+ */
 public class GalaxyArc {
     private static final int STAR_COLOR = 9662683;
     private static final float GIANT_SIZE = 3.0F;

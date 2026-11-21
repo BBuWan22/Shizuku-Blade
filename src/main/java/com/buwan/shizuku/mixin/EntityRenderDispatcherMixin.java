@@ -13,6 +13,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 在实体渲染分发处跳过「已被夜冥杀标记为抹除」的实体，避免它们再被画一帧。
+ */
 @OnlyIn(Dist.CLIENT)
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {

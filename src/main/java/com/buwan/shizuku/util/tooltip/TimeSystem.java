@@ -1,5 +1,9 @@
 package com.buwan.shizuku.util.tooltip;
 
+/**
+ * 给 shader / 动画用的时间源：同时维护游戏时间、shader 时间与动画时间三套输出
+ * （TimeOutput 含 ticks / seconds / normalizedTime），并支持切换真实时间。
+ */
 public class TimeSystem {
     private static TimeSystem instance;
     private long totalTicks = 0L;

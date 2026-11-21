@@ -17,6 +17,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.player.Player;
 
+/**
+ * 血量修改的门面（对应 core/HealthModify 的 util 版）：四种策略按顺序尝试，
+ * 并额外提供 traversalModify 沿「主人/召唤者」链找真正的血量载体。
+ */
 public class HealthModifyHelper {
     private static final UUID HEALTH_MODIFIER_UUID = UUID.fromString("78364952-8455-5678-9abc-785463259abc");
 

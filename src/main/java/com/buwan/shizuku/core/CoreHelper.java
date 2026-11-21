@@ -6,6 +6,12 @@ import java.lang.reflect.Modifier;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
+/**
+ * 反射总工具箱：按名取字段/方法、按类型找字段、Unsafe 强制写 final 字段、
+ * 以及黑名单类判断（blackClass）。
+ *
+ * 本 mod 里所有「改不动就反射」的逻辑都收敛在这里，便于一处维护。
+ */
 public class CoreHelper {
     private static Unsafe UNSAFE = getUnsafe();
 

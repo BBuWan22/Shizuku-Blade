@@ -8,6 +8,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 
+/**
+ * 掉落清理策略：按玩家是否潜行、范围内掉落物数量决定「是否清掉地上掉落物」，
+ * 避免夜冥杀把服务器刷爆。
+ */
 public class LootDropController {
     private static final double DEFAULT_CLEANUP_RANGE = 50.0;
 

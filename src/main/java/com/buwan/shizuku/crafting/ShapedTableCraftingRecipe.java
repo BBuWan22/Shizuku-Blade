@@ -29,6 +29,17 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 工作台的有序配方，支持在网格内平移与镜像匹配。
+ *
+ * - matches()：按 size 推导网格边长，逐 (x,y) 偏移尝试 checkMatch（含镜像）；
+ * - getResultItem()：产物可以是「命名刀」——按 blade 字段从 SlashBlade 定义注册表取完整刀，
+ *   取不到才退回普通产物栈；
+ * - checkMatch()：空槽要求网格对应位置也为空（这是 9x9 大配方能正确匹配的关键）。
+ *
+ * 已知问题（上游行为）：按定义 id 查刀，命名刀定义文件名必须与 name 字段一致，
+ * 不一致时 JEI/产物会退化成无铭占位刀。
+ */
 public class ShapedTableCraftingRecipe implements ITierCraftingRecipe {
     private static final Logger LOGGER = LoggerFactory.getLogger(ShapedTableCraftingRecipe.class);
     private final ResourceLocation recipeId;

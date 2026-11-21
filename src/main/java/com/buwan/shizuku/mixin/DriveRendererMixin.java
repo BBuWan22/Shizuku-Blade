@@ -20,6 +20,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 宇宙刀的刀光星光：HEAD 取消前置的发光层，改用自己的 daoguang.obj + cosmic 着色器绘制；
+ * 透明度按生命周期做淡出（与原版 1.20.1 的公式一致）。
+ */
 @OnlyIn(Dist.CLIENT)
 @Mixin(DriveRenderer.class)
 public abstract class DriveRendererMixin {

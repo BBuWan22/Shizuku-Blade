@@ -25,6 +25,14 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * JEI 里「雫工作台」的分类界面：按配方 pattern 把 9x9 的输入槽摆出来，
+ * 右侧放产物槽。
+ *
+ * 已知问题（上游行为，Fabric 移植版已修）：输入槽里的「命名刀」材料只能显示成
+ * 无铭占位刀——配方配料里的 request（要求哪把刀）在 1.20.1 的 Ingredient 里
+ * 拿不到，只能靠反射读 SlashBladeIngredient 的私有字段；读不到时退回原样配料。
+ */
 public class ShizukuCraftingTableCategory implements IRecipeCategory<ITierCraftingRecipe> {
     public static final RecipeType<ITierCraftingRecipe> RECIPE_TYPE = RecipeType.create("shizuku", "shizuku_craft", ITierCraftingRecipe.class);
     private static final ResourceLocation TEXTURE = shizuku.prefix("textures/gui/jei/shizuku_crafting_jei.png");

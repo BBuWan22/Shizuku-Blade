@@ -25,6 +25,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
+/**
+ * 「雫草」：最基础的 SA，按速度参数生成数道刀光；重载版本可指定颜色与是否播声音。
+ */
 public class Shizukusa {
     private static final ResourceLocation[] LEISA_SOUNDS = new ResourceLocation[]{
         shizuku.LEISA_SOUND1.getId(), shizuku.LEISA_SOUND2.getId(), shizuku.LEISA_SOUND3.getId()

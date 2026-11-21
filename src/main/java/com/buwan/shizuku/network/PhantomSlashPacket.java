@@ -8,6 +8,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+/**
+ * 客户端 -> 服务端：触发「星河流转（幻影斩）」。
+ */
 public class PhantomSlashPacket {
     public void encode(FriendlyByteBuf buf) {
     }

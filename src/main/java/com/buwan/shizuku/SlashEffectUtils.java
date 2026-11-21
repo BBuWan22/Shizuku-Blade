@@ -5,6 +5,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * SlashBlade 的小工具：判断刀是否带某个 SE、取当前 SA 的伤害加成。
+ */
 public class SlashEffectUtils {
     public static boolean hasSpecialEffect(ItemStack stack, String effect) {
         CompoundTag tag = stack.getOrCreateTag();

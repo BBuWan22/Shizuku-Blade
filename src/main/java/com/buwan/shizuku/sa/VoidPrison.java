@@ -27,6 +27,10 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「虚空囚牢」：把范围内敌人困在球体内并持续伤害，
+ * 区域状态通过 VoidPrisonPacket 同步给客户端画线框。
+ */
 public class VoidPrison {
     private static final int PRISON_COLOR = 13382451;
     private static final double PRISON_RADIUS = 4.0;

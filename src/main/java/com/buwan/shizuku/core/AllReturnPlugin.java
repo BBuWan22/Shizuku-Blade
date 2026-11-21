@@ -16,6 +16,13 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * ModLauncher 的 ILaunchPluginService：在类加载期对特定包（flashfur、ultimate skeletons、
+ * GeckoLib、JEI 等）的 mixin 方法插入「立刻 return」，让它们的逻辑不再生效。
+ *
+ * 用途：夜冥杀这类「必须真正杀死目标」的 SA，常被其它 mod 的免伤/血量锁 mixin 顶住，
+ * 这里直接从字节码层面让对方的钩子失效。CRITICAL_CLASSES 是命中的包名清单。
+ */
 public class AllReturnPlugin implements ILaunchPluginService {
     private static final Set<String> CRITICAL_CLASSES = Set.of(
         "com/sakurafuld/hyperdaimc/mixin",

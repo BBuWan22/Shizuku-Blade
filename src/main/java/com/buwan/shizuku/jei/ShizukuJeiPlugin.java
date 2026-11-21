@@ -27,6 +27,10 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * JEI 插件入口：注册工作台配方分类、配方列表、催化剂（工作台方块）、
+ * 配方转移（一键把材料摆进 9x9 界面）以及界面里的配方点击区域。
+ */
 @JeiPlugin
 public class ShizukuJeiPlugin implements IModPlugin {
     public static final ResourceLocation UID = shizuku.prefix("jei_plugin");

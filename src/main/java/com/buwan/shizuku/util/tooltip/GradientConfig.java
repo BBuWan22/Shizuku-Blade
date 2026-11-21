@@ -2,6 +2,9 @@ package com.buwan.shizuku.util.tooltip;
 
 import java.util.List;
 
+/**
+ * 渐变配置对象：颜色列表 + 速度 + 渐变类型（水平/垂直/对角）+ 是否顺时针。
+ */
 public class GradientConfig {
     private final List<Integer> colors;
     private final float speed;

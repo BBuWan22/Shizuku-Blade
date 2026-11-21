@@ -36,6 +36,17 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 
+/**
+ * 终极实体移除：常规 remove 无效时逐步降级——
+ * 1. 直接 remove；
+ * 2. 从 ChunkMap 的 entityMap 里摘除并向周围玩家发 ClientboundRemoveEntitiesPacket；
+ * 3. 从 EntitySection / ClassInstanceMultiMap 里摘除；
+ * 4. 清 boss 血条 / bossEvent。
+ *
+ * 每一步都是独立 try/catch，任一步失败继续下一步。
+ *
+ * 注意：这里大量使用反射与内部字段名，是硬编码的版本相关逻辑。
+ */
 public class UltimateEntityRemover {
     public static void remove(Entity entity, Level level) {
         if (!(entity instanceof Player)) {

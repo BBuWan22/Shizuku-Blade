@@ -5,6 +5,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
 
+/**
+ * 记录实体被移除的原因（DISCARDED/KILLED 等）的旁路表，
+ * 清怪流程里用来区分「正常消失」与「被我们移除」。
+ */
 public class RemovalReasonHelper {
     private static final Map<Entity, RemovalReason> REMOVAL_REASON_OVERRIDE_MAP = new ConcurrentHashMap<>();
 

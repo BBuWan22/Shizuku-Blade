@@ -12,6 +12,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 宇宙刀的飞剑：命中后静默消失（不播原版命中效果）。
+ *
+ * 已知问题（上游 bug，未在本版本修复）：EntityAbstractSummonedSword 的 inBlockState 只在
+ * onHitBlock 里赋值，而 tick() 里直接对它调 equals()（没有判空）。任何「还没撞过方块」就被
+ * 存档/读档的刀光，下一次 tick 会 NPE 崩服；这里用 HEAD+cancel 会让该字段保持 null，
+ * 反而更容易触发，建议改成 TAIL 并补一个非空哨兵值（我们移植到 26.1 时就是这么修的）。
+ */
 @Mixin(EntityAbstractSummonedSword.class)
 public abstract class EntityAbstractSummonedSwordMixin {
     @Inject(method = "setHitEntity", at = @At("HEAD"), cancellable = true, remap = false)

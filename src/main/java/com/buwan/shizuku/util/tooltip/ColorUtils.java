@@ -3,6 +3,9 @@ package com.buwan.shizuku.util.tooltip;
 import java.util.List;
 import net.minecraft.util.Mth;
 
+/**
+ * 颜色插值与亮度调整：多段渐变按进度取色、HSV 转 RGB 等。
+ */
 public class ColorUtils {
     public static int getColorFromGradient(List<Integer> colors, float progress) {
         if (colors.isEmpty()) {

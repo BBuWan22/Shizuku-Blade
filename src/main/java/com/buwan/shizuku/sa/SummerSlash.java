@@ -30,6 +30,10 @@ import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
+/**
+ * 「夏日斩」：本文件最大的一个 SA，含多段斩击、粒子与音效编排，
+ * playerTick 里按时间轴推进每一段。
+ */
 public class SummerSlash {
     private static final Map<UUID, SummerSlash.SummerSlashData> activeSlashes = new ConcurrentHashMap<>();
     private static final int SLASH_INTERVAL = 3;

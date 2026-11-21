@@ -68,6 +68,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
+/**
+ * 主类：注册全部 DeferredRegister（物品/方块/音效/配方/实体/菜单/tile）、创造模式标签页、
+ * 并挂上事件总线与客户端初始化。
+ *
+ * 创造栏的刀列表是运行时从 SlashBlade 的客户端定义注册表里筛 shizuku 命名空间得到的，
+ * 所以新增命名刀只需加数据文件，不用改这里。
+ */
 @Mod("shizuku")
 public class shizuku {
     public static final String MODID = "shizuku";

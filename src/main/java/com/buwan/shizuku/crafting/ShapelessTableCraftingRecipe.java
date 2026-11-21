@@ -21,6 +21,12 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.util.RecipeMatcher;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 工作台的无序配方：统计非空格子数量后交给 RecipeMatcher 做匹配。
+ *
+ * 已知问题（上游行为）：getResultItem 只返回直存的产物栈，不解析命名刀；
+ * 所以无序配方产物不支持「指定 blade」。
+ */
 public class ShapelessTableCraftingRecipe implements ITierCraftingRecipe {
     private final NonNullList<Ingredient> inputs;
     private final ResourceLocation recipeId;

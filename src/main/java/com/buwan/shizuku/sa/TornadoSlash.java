@@ -16,6 +16,9 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「龙卷斩」：把周围敌人卷起并持续切割，逐 tick 调整目标速度与位置。
+ */
 public class TornadoSlash {
     private static final int TORNADO_COLOR = 65416;
     private static final double PULL_RANGE = 25.0;

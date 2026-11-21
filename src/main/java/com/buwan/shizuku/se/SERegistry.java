@@ -5,6 +5,9 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * SE（特殊效果）注册表：将雫、雷闪、静心、世界之宠爱等实现注册进前置的 SpecialEffect 注册表。
+ */
 public class SERegistry {
     public static final DeferredRegister<SpecialEffect> REGISTRY_KEY2 = DeferredRegister.create(SpecialEffect.REGISTRY_KEY, "shizuku");
     public static final RegistryObject<SpecialEffect> SHIZUKU = REGISTRY_KEY2.register("shizuku", shizuku::new);

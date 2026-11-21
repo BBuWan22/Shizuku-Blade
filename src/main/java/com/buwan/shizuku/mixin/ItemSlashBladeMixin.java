@@ -15,6 +15,12 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+/**
+ * 刀的两个耐久相关注入：hurtEnemy / mineBlock 里在扣耐久之前做判断。
+ *
+ * 已知问题（上游行为）：1.20.1 版本还会顺手把 NBT 里的负数附魔等级修成 0；
+ * 这条逻辑只对 NBT 附魔有效，1.21+ 改成数据组件后就不适用了。
+ */
 @Mixin(ItemSlashBlade.class)
 public class ItemSlashBladeMixin {
     @Inject(

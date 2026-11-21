@@ -19,6 +19,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * 「星河流转」：发射多道带随机滚转角的幻影刀光（firePhantomSlash），
+ * randomPhantomRoll 决定每道刀光的倾斜，看起来像星河散开。
+ */
 public class StarRiverSlash {
     private static final int STAR_COLOR = 9662683;
     private static final float PHANTOM_SPEED = 1.0F;

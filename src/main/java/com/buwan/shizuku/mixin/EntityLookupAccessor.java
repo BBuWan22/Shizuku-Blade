@@ -8,6 +8,9 @@ import net.minecraft.world.level.entity.EntityLookup;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
+/**
+ * @Accessor：拿到 EntityLookup 的 byId / byUuid 两张索引表，强制移除实体时同步清理。
+ */
 @Mixin(EntityLookup.class)
 public interface EntityLookupAccessor {
     @Accessor("byId")

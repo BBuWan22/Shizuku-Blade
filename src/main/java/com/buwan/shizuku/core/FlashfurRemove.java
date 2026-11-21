@@ -8,6 +8,12 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import sun.misc.Unsafe;
 
+/**
+ * 针对 flashfur/omnimobs 的一个特殊清理：用 Unsafe 直接把它的「元能闪电兽列表」
+ * size 置 0，绕过它自己的不可删除逻辑。
+ *
+ * 已知问题（上游行为）：这里是 hardcode 的第三方类名，对方改名/改结构时只会静默失败。
+ */
 public class FlashfurRemove {
     public static void forceCleanList() {
         try {

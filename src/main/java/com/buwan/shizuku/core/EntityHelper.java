@@ -6,6 +6,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 实体血量读写的统一门面：优先走 Agent 改写的 getter，其次反射读字段，
+ * 最后退回原版 API；写血量时同时维护一个「强制血量」缓存。
+ *
+ * 字段名同时尝试 Mojang 名与 SRG 名（如 f_20961_/DATA_HEALTH_ID），
+ * 以兼容不同运行时。
+ */
 public class EntityHelper {
     private static final Map<UUID, Float> FORCED_HEALTH_MAP = new ConcurrentHashMap<>();
     private static final Map<UUID, Float> FORCED_MAX_HEALTH_MAP = new ConcurrentHashMap<>();

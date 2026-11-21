@@ -3,6 +3,9 @@ package com.buwan.shizuku.util.tooltip;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 几组预置的渐变色板（雫刃、宇宙刀各两套），供 tooltip 与文字渲染使用。
+ */
 public class ColorHelper {
     public static final List<Integer> ShizukuBlade = Arrays.asList(15925182, 14155671, 16121753, 16449489, 16772817, 16494252, 16449498, 15925182);
     public static final List<Integer> ShizukuBlade_B = Arrays.asList(

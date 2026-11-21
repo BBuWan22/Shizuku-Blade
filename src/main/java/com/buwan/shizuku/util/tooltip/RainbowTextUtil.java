@@ -13,6 +13,10 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.Mth;
 
+/**
+ * 彩虹文字：把字符串按字符拆成带渐变的 Component，
+ * 内置 Rainbow/火/海洋/紫/冰/金等多套色板与动画类型。
+ */
 public class RainbowTextUtil {
     private static final Map<String, MutableComponent> STATIC_CACHE = new ConcurrentHashMap<>();
     private static final int MAX_CACHE_SIZE = 500;

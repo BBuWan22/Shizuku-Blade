@@ -5,6 +5,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * 夜冥杀里可单测的纯逻辑：是否该杀（排除施法者/自己宠物/已移除/已死）、
+ * boss 关键词匹配、保护标签判断、清理表推进等。
+ *
+ * 把判定抽出来是为了避免在 900 行的 Ymsa 里调试。
+ */
 final class YmsaLogic {
     private YmsaLogic() {
     }

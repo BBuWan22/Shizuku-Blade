@@ -22,6 +22,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 宇宙刀的斩击星光：在 TAIL 追加一层 cosmic 渲染，并重放原效果的姿态链
+ * （刀身跟随、缩放、旋转），不取消原效果。
+ */
 @OnlyIn(Dist.CLIENT)
 @Mixin(SlashEffectRenderer.class)
 public abstract class SlashEffectRendererMixin {

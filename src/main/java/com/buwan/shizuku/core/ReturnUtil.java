@@ -1,5 +1,9 @@
 package com.buwan.shizuku.core;
 
+/**
+ * AllReturnPlugin / HealthReturnPlugin 的全局开关（allReturn / mixinAllReturn /
+ * eventAllReturn 三个维度），默认全关。
+ */
 public class ReturnUtil {
     private static boolean allReturn = false;
     private static boolean mixinAllReturn = false;

@@ -26,6 +26,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * 秒杀工具集（570 行）：killEntity / kill / AsynchronousAttack / remove / AsynchronousRemove。
+ *
+ * 核心思路是「先按原版 API 杀，失败再降级到反射改血量、改移除标记、
+ * 最后交给 UltimateEntityRemover」，并在删除前补掉落与死亡音效。
+ */
 public class EntityKillerHelper {
     private static final Map<UUID, Integer> PENDING_FORCE_REMOVALS = new ConcurrentHashMap<>();
 

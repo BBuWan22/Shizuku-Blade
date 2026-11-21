@@ -8,6 +8,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 
+/**
+ * 伤害计算：按前置的 comboRatio（连招加成）与刀的耀魂/精炼等级算出最终伤害。
+ */
 public class DamageCalculator {
     public static float calculateRefinedDamage(LivingEntity caster, Entity target, float comboRatio) {
         return calculateRefinedDamage(caster, comboRatio);

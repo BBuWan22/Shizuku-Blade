@@ -9,6 +9,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+/**
+ * 服务端 -> 客户端：同步时停区域（圆心、半径、持续时间）的开启与关闭。
+ */
 public class TimeStopPacket {
     private final UUID playerId;
     private final double x;

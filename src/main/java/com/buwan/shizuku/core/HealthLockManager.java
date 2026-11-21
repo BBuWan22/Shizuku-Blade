@@ -11,6 +11,12 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.world.entity.LivingEntity;
 
+/**
+ * 血量锁：把实体当前血量钉在一个值，并记录「原本血量 + 被锁定的字段访问方式」，
+ * 解锁时按记录原样还原。
+ *
+ * 用于某些 SA 需要在动画期间让目标「看起来没掉血」，动画结束再结算。
+ */
 public class HealthLockManager {
     private static final Map<UUID, HealthLockManager.LockedHealthData> lockedEntities = new HashMap<>();
 

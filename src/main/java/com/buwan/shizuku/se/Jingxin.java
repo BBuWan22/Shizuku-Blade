@@ -9,6 +9,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * SE「静心」：在命中实体时触发，给持有者一个短时的自我增益/免伤窗口
+ * （具体数值见类内常量）。
+ */
 @EventBusSubscriber
 public class Jingxin extends SpecialEffect {
     public Jingxin() {

@@ -24,6 +24,10 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「时停」：以自身为中心 FREEZE_RANGE 范围内冻结敌人 FREEZE_DURATION tick，
+ * 并通过 TimeStopPacket / TimeStopShaderPacket 同步客户端观感。
+ */
 public class TimeSlash {
     private static final int TIME_COLOR = 16766720;
     private static final double FREEZE_RANGE = 12.0;

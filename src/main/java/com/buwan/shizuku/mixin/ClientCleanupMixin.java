@@ -10,6 +10,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * 客户端退出世界 / 关闭游戏时清理本 mod 的静态状态（区域列表、渲染杀手、
+ * 血量缓存等），防止换存档后残留脏数据。
+ */
 @OnlyIn(Dist.CLIENT)
 @Mixin(Minecraft.class)
 public class ClientCleanupMixin {

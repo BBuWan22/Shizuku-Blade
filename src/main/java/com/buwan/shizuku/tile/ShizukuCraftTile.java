@@ -21,6 +21,10 @@ import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * 工作台的 BlockEntity：持有 81 格 ItemStackHandler，负责存读档
+ * （load/saveAdditional）与创建菜单（createMenu）。
+ */
 public class ShizukuCraftTile extends BlockEntity implements MenuProvider {
     public static final int GRID = 9;
     public static final int SLOT_COUNT = 81;

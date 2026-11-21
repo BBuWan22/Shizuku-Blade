@@ -4,6 +4,10 @@ import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * 特殊技（SlashArts）注册：雫草、雷萨、影萨、传送斩、时停等，
+ * 每个都绑定到对应的 SA 实现类。
+ */
 public class SASlashArtRegistry {
     public static final DeferredRegister<SlashArts> SLASH_ARTS = DeferredRegister.create(SlashArts.REGISTRY_KEY, "shizuku");
     public static final RegistryObject<SlashArts> Shizukusa = SLASH_ARTS.register("shizukusa", () -> new SlashArts(e -> SAComboRegistry.shizukusa.getId()));

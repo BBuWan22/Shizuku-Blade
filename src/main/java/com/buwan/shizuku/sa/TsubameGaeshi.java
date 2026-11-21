@@ -18,6 +18,9 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「燕返」：正面三连快速斩，段间间隔很短，靠 playerTick 计时推进。
+ */
 public class TsubameGaeshi {
     private static final int SWALLOW_COLOR = 4286945;
     private static final int SLASH_INTERVAL = 6;

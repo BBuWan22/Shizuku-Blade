@@ -17,6 +17,16 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
 import net.minecraft.world.entity.player.Player;
 
+/**
+ * 血量修改的四种策略集合：
+ * - tagModify：写 NBT/DataTag；
+ * - attributeModifier：改属性 modifier；
+ * - traversalModify：沿实体关系链（主人/召唤者）找真正的血量载体；
+ * - entityDataModify：改 SynchedEntityData 里的 DATA_HEALTH_ID；
+ * - forceModify：以上组合。
+ *
+ * 按顺序尝试，任一成功即返回。
+ */
 public class HealthModify {
     private static final UUID HEALTH_MODIFIER_UUID = UUID.fromString("78364952-8455-5678-9abc-785463259abc");
 

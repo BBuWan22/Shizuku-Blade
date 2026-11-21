@@ -20,6 +20,10 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「星河领域」的 SA 本体：服务端维护领域状态并每 tick 结算（对范围内敌人造成周期伤害），
+ * 同时通过 GalaxyFieldPacket 同步给客户端渲染。
+ */
 public class GalaxyField {
     public static final float RADIUS = 8.0F;
     private static final int DAMAGE_TICKS = 4;

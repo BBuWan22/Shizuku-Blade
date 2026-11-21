@@ -6,6 +6,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 雫工作台配方的公共接口：tier n 对应 (2n+1)x(2n+1) 的合成网格，
+ * 并提供按格位读取配料的视图（getIngredients 在 1.20.1 里会丢空槽信息）。
+ */
 public interface ITierCraftingRecipe extends Recipe<Container> {
     int getTier();
 

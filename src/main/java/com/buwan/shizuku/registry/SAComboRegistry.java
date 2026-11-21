@@ -33,6 +33,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * 连招（ComboState）注册：每个 SA 一套连招状态，含「全部复用(ALL_REUSE)」等特殊项。
+ * 这是本 mod 的 SA 能被前置识别为「连招」的关键。
+ */
 public class SAComboRegistry {
     public static final DeferredRegister<ComboState> COMBO_STATES = DeferredRegister.create(ComboState.REGISTRY_KEY, "shizuku");
     public static final RegistryObject<ComboState> ALL_REUSE = COMBO_STATES.register(

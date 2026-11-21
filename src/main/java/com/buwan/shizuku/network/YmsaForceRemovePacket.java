@@ -34,6 +34,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+/**
+ * 服务端 -> 客户端：夜冥杀的批量去除指令。
+ *
+ * 同时带三种信息（实体 id、UUID、按类型整类杀），客户端收到后把对应实体加进
+ * 「抹除」集合并跳过渲染；实体 id 与 UUID 都带是为了兼容「客户端还没收到生成包」的情况。
+ */
 @EventBusSubscriber(Dist.CLIENT)
 public class YmsaForceRemovePacket {
     private final int[] entityIds;

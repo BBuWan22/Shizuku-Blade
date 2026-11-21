@@ -15,6 +15,12 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector4i;
 
+/**
+ * 圆角矩形绘制（850 行）：纯色、渐变、描边、渐变描边四种。
+ *
+ * 实现方式是用 SDF（距离场）逐像素判断圆角，按 GUI 缩放分块绘制；
+ * 内部的 panelt rings/角点计算是性能关键路径，改动时要实测帧率。
+ */
 public class RoundedRectRenderer {
     public static void renderRoundedRect(
         GuiGraphics graphics,

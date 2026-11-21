@@ -9,6 +9,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * SE「雷闪」：每 tick 检查持有者状态，满足条件时在周围生成雷击式特效与伤害。
+ */
 @EventBusSubscriber
 public class Leise extends SpecialEffect {
     public Leise() {

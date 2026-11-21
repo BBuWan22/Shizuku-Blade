@@ -13,6 +13,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * SA 的全局状态：记录玩家所在维度（用于跨维度时重置状态），
+ * 在玩家登录/登出/每 tick 时维护，避免换维度后 SA 状态泄漏。
+ */
 @EventBusSubscriber
 public class SAStateManager {
     private static final Map<UUID, ResourceLocation> playerDimensions = new ConcurrentHashMap<>();

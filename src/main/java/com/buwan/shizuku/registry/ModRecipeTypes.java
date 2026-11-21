@@ -10,6 +10,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * 配方类型注册：雫工作台配方类型（ITierCraftingRecipe）。
+ */
 public class ModRecipeTypes {
     public static final DeferredRegister<RecipeType<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_TYPES, "shizuku");
     public static final RegistryObject<RecipeType<ITierCraftingRecipe>> CRAFTING_TABLE_RECIPE = recipe(

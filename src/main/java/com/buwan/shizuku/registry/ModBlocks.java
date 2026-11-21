@@ -9,6 +9,9 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * 方块注册表：雫工作台方块。
+ */
 public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "shizuku");
     public static final RegistryObject<Block> SHIZUKU_CRAFTING_TABLE = BLOCKS.register(

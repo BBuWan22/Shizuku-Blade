@@ -11,6 +11,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.entity.LivingEntity;
 
+/**
+ * util 包下的血量锁副本（与 core/HealthLockManager 同源），
+ * 供不需要 Agent 的路径使用。
+ *
+ * 已知问题（上游行为）：两份实现并存，改一处容易忘记另一处。
+ */
 public class HealthLockManager {
     private static final Map<UUID, HealthLockManager.LockedHealthData> lockedEntities = new ConcurrentHashMap<>();
 

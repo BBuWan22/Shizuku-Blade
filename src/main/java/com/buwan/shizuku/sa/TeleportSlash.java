@@ -18,6 +18,9 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.PlayerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+/**
+ * 「传送斩」：向准星方向瞬移并沿途斩击，落点用射线检测取安全位置。
+ */
 public class TeleportSlash {
     private static final int TELEPORT_COLOR = 65535;
     private static final double SEARCH_RANGE = 15.0;

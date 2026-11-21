@@ -13,6 +13,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+/**
+ * 「宇宙十文字斩」：两道交叉的大范围斩击，颜色用星空蓝（9662683），
+ * 伤害走 DamageCalculator（含精炼加成）。
+ */
 public class CosmicCrossSlash {
     private static final int COSMIC_COLOR = 9662683;
 

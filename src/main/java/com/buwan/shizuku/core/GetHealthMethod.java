@@ -3,6 +3,12 @@ package com.buwan.shizuku.core;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+/**
+ * 最底层的反射血量读取：遍历字段找 float/数值型血量，
+ * 并可从 Attributes.MAX_HEALTH 取最大血量。
+ *
+ * 在 Agent 不可用时作为兜底路径。
+ */
 class GetHealthMethod {
     public static float getHealthFromFields(Object entity) throws Exception {
         for (Class<?> clazz = entity.getClass(); clazz != null; clazz = clazz.getSuperclass()) {

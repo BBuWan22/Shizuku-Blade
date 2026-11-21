@@ -1,5 +1,9 @@
 package com.buwan.shizuku.core;
 
+/**
+ * HealthReturnPlugin 的开关与返回值配置（int/float/double 三种常量形态），
+ * 由配置文件/指令切换，方便线上排查「是哪个 mod 在顶血量」。
+ */
 public class HealthReturnSwitch {
     private static volatile boolean enabled = false;
 

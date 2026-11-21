@@ -14,6 +14,12 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * ILaunchPluginService：把若干 mod 的 mixin 中对 getHealth/getMaxHealth 的读写
+ * 改写成直接返回本 mod 缓存值，等价于「在字节码层把血量来源换掉」。
+ *
+ * 与 AllReturnPlugin 的区别：这个只动血量读取，不影响其它逻辑。
+ */
 public class HealthReturnPlugin implements ILaunchPluginService {
     public String name() {
         return "shizuku_HealthReturn";

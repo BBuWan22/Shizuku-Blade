@@ -77,6 +77,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Unsafe;
 
+/**
+ * 「夜冥杀」：本 mod 最复杂的一个 SA（900 行），包含蓄力判定、范围标记、
+ * 批量处决、掉落处理、boss 血条清理以及给客户端发 YmsaForceRemovePacket。
+ *
+ * 流程大致是：蓄力 -> 标记目标 -> 强制移除（走 UltimateEntityRemover 的多级降级）
+ * -> 补掉落 -> 清理状态。
+ *
+ * 注意：这里为了「真正杀死」目标，做了大量违反常规 API 的操作，
+ * 遇到与其它 mod 的兼容问题时要先看本类与 core/ 下的工具。
+ */
 public class Ymsa {
     private static final double KILL_RADIUS = 256.0;
     private static final float KILL_DAMAGE = Float.MAX_VALUE;

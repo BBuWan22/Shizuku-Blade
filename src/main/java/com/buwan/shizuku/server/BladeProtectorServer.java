@@ -13,6 +13,13 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * 服务器侧的刀保护：登录/死亡/掉落时，把「受保护的刀」（星之雫系列）
+ * 标记成不掉落也不被清除——死亡后会被放回背包。
+ *
+ * 判定同时看定义 id、显示名（无铭/有名）与 NBT 里的 display.Name，
+ * 是为了覆盖改名后的刀。
+ */
 @EventBusSubscriber
 public class BladeProtectorServer {
     private static final Set<ResourceLocation> PROTECTED_BLADES = Set.of(

@@ -11,6 +11,12 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData.DataItem;
 import net.minecraft.world.entity.LivingEntity;
 
+/**
+ * 「智能改血」：在目标身上找最像血量的数值字段（排除 static 与 EntityDataAccessor 字段），
+ * 按与参考血量的接近程度排序，命中即改。
+ *
+ * 用于血量藏在自定义字段、getHealth 又拿不到的 boss。
+ */
 public class UltimateAttackOHelp {
     public static void smartModifyMode(LivingEntity target, float referenceHealth, float newValue, boolean titan, boolean lock) {
         try {

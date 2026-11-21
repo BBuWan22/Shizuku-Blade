@@ -10,6 +10,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * SE「雫」：最基础的 SE，命中/更新时给持有者小额的伤害与状态调整。
+ */
 @EventBusSubscriber
 public class shizuku extends SpecialEffect {
     public shizuku() {

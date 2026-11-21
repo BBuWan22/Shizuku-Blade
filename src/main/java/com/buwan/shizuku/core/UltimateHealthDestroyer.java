@@ -6,6 +6,12 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.SynchedEntityData.DataItem;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * 血量毁灭者：直接破坏实体的 SynchedEntityData（必要时连实体 id 一起改），
+ * 让客户端认为该实体血量极低/已死。
+ *
+ * 只在其它手段全部失败时使用，破坏性最强。
+ */
 public class UltimateHealthDestroyer {
     private static final String ITEMS_BY_ID = "f_135345_";
     private static final String VALUE = "f_135391_";

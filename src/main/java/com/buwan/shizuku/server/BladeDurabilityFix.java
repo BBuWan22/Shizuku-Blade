@@ -9,6 +9,10 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
+/**
+ * 服务端修正：玩家攻击时若手持刀且耐久为 0 / 不可损坏，则跳过扣耐久，
+ * 避免前置在异常数据下把刀「打碎」。
+ */
 @EventBusSubscriber
 public class BladeDurabilityFix {
     @SubscribeEvent

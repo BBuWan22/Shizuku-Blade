@@ -4,6 +4,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * 记录「实体是否已被标记移除」的旁路表（UUID -> boolean），
+ * 用于在实体已被移除但还没被 GC 的窗口期做判断。
+ */
 public class IsRemovedHelper {
     private static final Map<Entity, Boolean> REMOVED_OVERRIDE_MAP = new ConcurrentHashMap<>();
 
