@@ -1,14 +1,1 @@
-{
-  "required": true,
-  "minVersion": "0.8",
-  "package": "com.buwan.shizuku.mixin",
-  "compatibilityLevel": "JAVA_8",
-  "refmap": "shizuku.refmap.json",
-  "mixins": [
-  ],
-  "client": [
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  }
-}
+{"required": true, "minVersion": "0.8", "package": "com.buwan.shizuku.mixin", "compatibilityLevel": "JAVA_8", "refmap": "shizuku.refmap.json", "mixins": ["ItemSlashBladeMixin", "EntityAbstractSummonedSwordMixin", "ItemStackMixin", "LivingEntityAccessor", "DamageSourcesAccessor", "LivingEntityTickMixin", "EntityAccessor", "EntityLookupAccessor", "EntityManagerAccessor", "EntityTickListAccessor", "ChunkMapAccessor", "ServerLevelAccessor", "ClassInstanceMultiMapAccessor", "EntitySectionAccessor", "SynchedEntityDataAccessor", "TransientEntitySectionManagerAccessor", "ServerMaintenanceMixin", "ServerAddEntityMixin", "LivingEntityDropMixin"], "client": ["EntityRenderDispatcherMixin", "ClientLevelAccessor", "ClientCleanupMixin", "SlashEffectRendererMixin", "DriveRendererMixin"], "injectors": {"defaultRequire": 1}}
