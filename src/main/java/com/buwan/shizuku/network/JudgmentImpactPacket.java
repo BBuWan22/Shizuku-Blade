@@ -12,6 +12,17 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 public record JudgmentImpactPacket(UUID caster, long startTick, int phaseTick, Vec3 origin, float yaw, float pitch) {
     public static JudgmentImpactPacket from(ServerPlayer player, int phaseTick) {
+        return from(player, phaseTick, player.getYRot(), player.getXRot());
+    }
+
+    /**
+     * 用指定朝向构造包。
+     *
+     * <p>审判落剑有延迟：若在施法到落剑之间转头，客户端会按「落剑那一刻」的朝向算落点，
+     * 而击杀范围是以玩家为中心、施法时就定了——两者就对不上。所以服务端在
+     * {@code beginJudgment} 时锁定朝向，后续阶段都用这份朝向发包。</p>
+     */
+    public static JudgmentImpactPacket from(ServerPlayer player, int phaseTick, float yaw, float pitch) {
         long start = player.level().getGameTime() - phaseTick;
         return new JudgmentImpactPacket(player.getUUID(), start, phaseTick, player.getEyePosition(), player.getYRot(), player.getXRot());
     }

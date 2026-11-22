@@ -202,14 +202,22 @@ public class Ymsa {
         "\u59cb\u7956"
     );
 
+    /** 施法瞬间锁定的朝向（yaw, pitch）：落剑视觉与击杀范围都按这一刻来，避免落剑跟着鼠标跑。 */
+    private static final Map<UUID, float[]> AIM = new java.util.concurrent.ConcurrentHashMap<>();
+
     public static void beginJudgment(LivingEntity caster) {
         if (caster instanceof ServerPlayer player) {
+            AIM.put(player.getUUID(), new float[]{player.getYRot(), player.getXRot()});
             broadcastPhase(player, 1);
         }
     }
 
     private static void broadcastPhase(ServerPlayer player, int phaseTick) {
-        PacketHandler.sendToNearby(JudgmentImpactPacket.from(player, phaseTick), player, DOMAIN_RADIUS * 2.5);
+        float[] aim = AIM.get(player.getUUID());
+        PacketHandler.sendToNearby(aim == null
+                ? JudgmentImpactPacket.from(player, phaseTick)
+                : JudgmentImpactPacket.from(player, phaseTick, aim[0], aim[1]),
+            player, DOMAIN_RADIUS * 2.5);
     }
 
     public static void openRift(LivingEntity caster) {
@@ -501,6 +509,7 @@ public class Ymsa {
     }
 
     static void clearUnleashedArea(UUID caster) {
+        AIM.remove(caster);
         SPAWN_BLOCKS.removeIf(block -> block.caster.equals(caster));
     }
 
