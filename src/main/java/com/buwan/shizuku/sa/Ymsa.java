@@ -202,21 +202,28 @@ public class Ymsa {
         "\u59cb\u7956"
     );
 
-    /** 施法瞬间锁定的朝向（yaw, pitch）：落剑视觉与击杀范围都按这一刻来，避免落剑跟着鼠标跑。 */
-    private static final Map<UUID, float[]> AIM = new java.util.concurrent.ConcurrentHashMap<>();
+    /**
+     * 施法瞬间锁定的朝向与眼睛位置（yaw, pitch, x, y, z）。
+     *
+     * <p>落剑有 42 tick 延迟：朝向不锁会跟着鼠标转，位置不锁会因为施法过程中走动而漂移。
+     * 两者都锁住，落点才和「施法那一刻」完全一致。</p>
+     */
+    private static final Map<UUID, double[]> AIM = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static void beginJudgment(LivingEntity caster) {
         if (caster instanceof ServerPlayer player) {
-            AIM.put(player.getUUID(), new float[]{player.getYRot(), player.getXRot()});
+            AIM.put(player.getUUID(), new double[]{player.getYRot(), player.getXRot(),
+                    player.getEyePosition().x, player.getEyePosition().y, player.getEyePosition().z});
             broadcastPhase(player, 1);
         }
     }
 
     private static void broadcastPhase(ServerPlayer player, int phaseTick) {
-        float[] aim = AIM.get(player.getUUID());
+        double[] aim = AIM.get(player.getUUID());
         PacketHandler.sendToNearby(aim == null
                 ? JudgmentImpactPacket.from(player, phaseTick)
-                : JudgmentImpactPacket.from(player, phaseTick, aim[0], aim[1]),
+                : JudgmentImpactPacket.from(player, phaseTick,
+                    (float) aim[0], (float) aim[1], aim[2], aim[3], aim[4]),
             player, DOMAIN_RADIUS * 2.5);
     }
 
