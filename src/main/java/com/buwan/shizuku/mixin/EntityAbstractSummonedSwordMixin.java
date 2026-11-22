@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(EntityAbstractSummonedSword.class)
 public abstract class EntityAbstractSummonedSwordMixin {
-    @Inject(method = "setHitEntity", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "setHitEntity", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void shizuku$disappearOnHit(Entity hitEntity, CallbackInfo ci) {
         if (isMosmicDrive((EntityAbstractSummonedSword)(Object)this)) {
             ci.cancel();
@@ -30,7 +30,7 @@ public abstract class EntityAbstractSummonedSwordMixin {
         }
     }
 
-    @Inject(method = "burst", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "burst", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void shizuku$silentRemove(CallbackInfo ci) {
         if (isMosmicDrive((EntityAbstractSummonedSword)(Object)this)) {
             ci.cancel();

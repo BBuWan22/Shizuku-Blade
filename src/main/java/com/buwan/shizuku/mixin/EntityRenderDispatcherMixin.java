@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @OnlyIn(Dist.CLIENT)
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true, require = 0)
     private void ymsa$skipErasedRender(
         Entity entity,
         double x,

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(LivingEntity.class)
 public class LivingEntityDropMixin {
-    @Inject(method = "dropAllDeathLoot", at = @At("RETURN"))
+    @Inject(method = "dropAllDeathLoot", at = @At("RETURN"), require = 0)
     private void ymsa$dropsProcessed(DamageSource source, CallbackInfo ci) {
         Ymsa.handleDropsProcessed((LivingEntity)(Object)this);
     }

@@ -22,6 +22,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
  */
 @EventBusSubscriber
 public class BladeProtectorServer {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("shizuku/bladeprotect");
     private static final Set<ResourceLocation> PROTECTED_BLADES = Set.of(
         new ResourceLocation("shizuku", "shizuku"), new ResourceLocation("shizuku", "el"), new ResourceLocation("shizuku", "ym")
     );
@@ -73,41 +74,34 @@ public class BladeProtectorServer {
 
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerLoggedInEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = event.getEntity();
-            System.out.println("\u00a76[BladeProtectorServer] \u73a9\u5bb6\u767b\u5f55\uff0c\u786e\u4fdd\u4fdd\u62a4\u6807\u7b7e...");
-            new Thread(
-                    () -> {
-                        try {
-                            Thread.sleep(2000L);
+        // PlayerLoggedInEvent#getEntity() 本身就是 Player，不需要（也不能）再做 instanceof 模式匹配
+        Player player = event.getEntity();
+        // 原来这里开了一个裸线程 + Thread.sleep(2000) 去改玩家背包里的 ItemStack NBT，
+        // 属于跨线程改状态（偶发 CME / 数据错乱）。改成在服务端线程上延迟 40 tick 执行。
+        if (player.getServer() != null) {
+            player.getServer().tell(new net.minecraft.server.TickTask(40, () -> ensureProtectionTags(player)));
+        } else {
+            ensureProtectionTags(player);
+        }
+    }
 
-                            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                                ItemStack stack = player.getInventory().getItem(i);
-                                if (stack != null && !stack.isEmpty()) {
-                                    try {
-                                        if (stack.getItem() instanceof ItemSlashBlade && isProtectedBlade(stack)) {
-                                            CompoundTag tag = stack.getOrCreateTag();
-                                            tag.putBoolean("shizuku:keep_on_death", true);
-                                            tag.putString("shizuku:protected_blade", "true");
-                                            tag.putLong("shizuku:protection_timestamp", System.currentTimeMillis());
-                                            System.out
-                                                .println(
-                                                    "\u00a76[BladeProtectorServer] \u786e\u4fdd\u4fdd\u62a4\u7269\u54c1\u6807\u7b7e: "
-                                                        + stack.getHoverName().getString()
-                                                );
-                                        }
-                                    } catch (Exception var4) {
-                                    }
-                                }
-                            }
-
-                            System.out.println("\u00a76[BladeProtectorServer] \u4fdd\u62a4\u6807\u7b7e\u786e\u4fdd\u5b8c\u6210\uff01");
-                        } catch (InterruptedException var5) {
-                            var5.printStackTrace();
-                        }
-                    }
-                )
-                .start();
+    /** 给背包里的受保护刀补上「死亡保留」标签（必须在服务端线程执行）。 */
+    private static void ensureProtectionTags(Player player) {
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack == null || stack.isEmpty() || !(stack.getItem() instanceof ItemSlashBlade)) {
+                continue;
+            }
+            try {
+                if (isProtectedBlade(stack)) {
+                    CompoundTag tag = stack.getOrCreateTag();
+                    tag.putBoolean("shizuku:keep_on_death", true);
+                    tag.putString("shizuku:protected_blade", "true");
+                    tag.putLong("shizuku:protection_timestamp", System.currentTimeMillis());
+                    LOGGER.debug("[BladeProtector] tagged protected blade: {}", stack.getHoverName().getString());
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -115,7 +109,7 @@ public class BladeProtectorServer {
     public static void onPlayerDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player)event.getEntity();
-            System.out.println("\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u6b7b\u4ea1\u4fdd\u62a4\u89e6\u53d1");
+            LOGGER.debug("\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u6b7b\u4ea1\u4fdd\u62a4\u89e6\u53d1");
 
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                 ItemStack stack = player.getInventory().getItem(i);
@@ -124,7 +118,7 @@ public class BladeProtectorServer {
                     tag.putBoolean("shizuku:anti_disarm", true);
                     tag.putString("shizuku:protected_blade", "true");
                     player.getInventory().setItem(i, stack);
-                    System.out.println("\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u4fdd\u62a4\u7269\u54c1: " + stack.getHoverName().getString());
+                    LOGGER.debug("\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u4fdd\u62a4\u7269\u54c1: " + stack.getHoverName().getString());
                 }
             }
 
@@ -134,8 +128,7 @@ public class BladeProtectorServer {
                 tag.putBoolean("shizuku:anti_disarm", true);
                 tag.putString("shizuku:protected_blade", "true");
                 player.setItemInHand(InteractionHand.MAIN_HAND, mainHand);
-                System.out
-                    .println(
+                LOGGER.debug(
                         "\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u4fdd\u62a4\u4e3b\u624b\u7269\u54c1: " + mainHand.getHoverName().getString()
                     );
             }
@@ -146,8 +139,7 @@ public class BladeProtectorServer {
                 tag.putBoolean("shizuku:anti_disarm", true);
                 tag.putString("shizuku:protected_blade", "true");
                 player.setItemInHand(InteractionHand.OFF_HAND, offHand);
-                System.out
-                    .println(
+                LOGGER.debug(
                         "\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u4fdd\u62a4\u526f\u624b\u7269\u54c1: " + offHand.getHoverName().getString()
                     );
             }
@@ -158,12 +150,11 @@ public class BladeProtectorServer {
     public static void onLivingDrops(LivingDropsEvent event) {
         if (event.getEntity() instanceof Player) {
             Player player = (Player)event.getEntity();
-            System.out
-                .println(
+            LOGGER.debug(
                     "\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u6389\u843d\u62e6\u622a\u89e6\u53d1\uff0c\u6389\u843d\u6570\u91cf: "
                         + event.getDrops().size()
                 );
-            System.out.println("\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u5141\u8bb8\u6240\u6709\u7269\u54c1\u6b63\u5e38\u6389\u843d");
+            LOGGER.debug("\u00a76[BladeProtectorServer] \u670d\u52a1\u5668\u7aef\u5141\u8bb8\u6240\u6709\u7269\u54c1\u6b63\u5e38\u6389\u843d");
         }
     }
 }

@@ -17,7 +17,40 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 @OnlyIn(Dist.CLIENT)
 public final class CosmicBladeRenderer {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("shizuku/icon");
+    /** 只打一次，用来确认 ItemRendererGuiMixin 的注入真的生效了（排查图标问题用）。 */
+    private static boolean hookLogged;
+
     private CosmicBladeRenderer() {
+    }
+
+    /** GUI 物品渲染的嵌套深度（>0 表示当前正在画物品图标）。 */
+    private static int guiItemDepth;
+
+    /**
+     * 「正在以 GUI 上下文渲染物品」（快捷栏/背包格/JEI 图标；地面掉落物/展示框/手持都不走
+     * GUI 上下文）。驱动 {@link CosmicShaders#inventoryRender} —— 即 1.20.1 原版 Forge
+     * {@code ScreenEvent.Render.Pre/Post} 的等价物，而且更精确：只覆盖真正的物品图标，
+     * 且**覆盖快捷栏**（快捷栏是 HUD 画的，不属于任何 Screen，服 ScreenEvent 会漏）。
+     */
+    public static void enterGuiItemRender(boolean gui) {
+        if (gui) {
+            guiItemDepth++;
+            CosmicShaders.inventoryRender = true;
+            if (!hookLogged) {
+                hookLogged = true;
+                LOGGER.info("[shizuku] GUI item context hook active (icon star layer will use the fixed view)");
+            }
+        }
+    }
+
+    public static void exitGuiItemRender(boolean gui) {
+        if (gui && guiItemDepth > 0) {
+            guiItemDepth--;
+            if (guiItemDepth == 0) {
+                CosmicShaders.inventoryRender = false;
+            }
+        }
     }
 
     @SubscribeEvent

@@ -17,13 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @OnlyIn(Dist.CLIENT)
 @Mixin(Minecraft.class)
 public class ClientCleanupMixin {
-    @Inject(method = "clearLevel()V", at = @At("HEAD"))
+    @Inject(method = "clearLevel()V", at = @At("HEAD"), require = 0)
     private void ymsa$clearLevel(CallbackInfo ci) {
         YmsaClientErase.clear();
         YmsaRenderKiller.clear();
     }
 
-    @Inject(method = "stop", at = @At("HEAD"))
+    @Inject(method = "stop", at = @At("HEAD"), require = 0)
     private void ymsa$stop(CallbackInfo ci) {
         YmsaClientErase.clear();
         YmsaRenderKiller.clear();
