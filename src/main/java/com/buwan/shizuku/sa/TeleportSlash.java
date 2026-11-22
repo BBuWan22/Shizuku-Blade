@@ -1,6 +1,5 @@
 package com.buwan.shizuku.sa;
 
-import com.buwan.shizuku.util.DamageCalculator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +21,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  * 「传送斩」：向准星方向瞬移并沿途斩击，落点用射线检测取安全位置。
  */
 public class TeleportSlash {
+    private static final float DAMAGE_SCALE = 1.65F;
     private static final int TELEPORT_COLOR = 65535;
     private static final double SEARCH_RANGE = 15.0;
     private static final double VIEW_ANGLE = 0.707;
@@ -36,7 +36,7 @@ public class TeleportSlash {
                 ServerLevel serverLevel = (ServerLevel)entity.level();
                 List<LivingEntity> targets = findMultipleTargets(entity, serverLevel);
                 if (!targets.isEmpty()) {
-                    float damage = DamageCalculator.calculateRefinedDamage(entity, 1.0F);
+                    float damage = DAMAGE_SCALE;
                     TeleportSlash.TeleportChainData chainData = new TeleportSlash.TeleportChainData(targets, damage);
                     activeChains.put(player.getUUID(), chainData);
                     executeChainAttack(player, chainData, serverLevel);

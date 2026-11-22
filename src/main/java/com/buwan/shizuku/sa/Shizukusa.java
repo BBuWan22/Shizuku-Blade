@@ -29,6 +29,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * 「雫草」：最基础的 SA，按速度参数生成数道刀光；重载版本可指定颜色与是否播声音。
  */
 public class Shizukusa {
+    private static final float DAMAGE_SCALE = 1.20F;
     private static final ResourceLocation[] LEISA_SOUNDS = new ResourceLocation[]{
         shizuku.LEISA_SOUND1.getId(), shizuku.LEISA_SOUND2.getId(), shizuku.LEISA_SOUND3.getId()
     };
@@ -82,7 +83,7 @@ public class Shizukusa {
                             if (drive != null) {
                                 drive.setSilent(true);
                                 float refinedDamage = DamageCalculator.calculateRefinedDamage(playerIn, 1.0F);
-                                drive.setDamage(refinedDamage);
+                                drive.setDamage(refinedDamage * DAMAGE_SCALE);
                             }
                         }
 

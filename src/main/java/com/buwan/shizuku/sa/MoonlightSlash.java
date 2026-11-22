@@ -1,6 +1,5 @@
 package com.buwan.shizuku.sa;
 
-import com.buwan.shizuku.util.DamageCalculator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,6 +22,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  * playerTick 里推进，clearPlayerState 在登出/死亡时清理。
  */
 public class MoonlightSlash {
+    private static final float DAMAGE_SCALE = 1.60F;
     private static final int MOONLIGHT_COLOR = 14743295;
     private static final int SLASH_INTERVAL = 8;
     private static final Map<UUID, MoonlightSlash.SlashData> activeSlashes = new ConcurrentHashMap<>();
@@ -31,7 +31,7 @@ public class MoonlightSlash {
         if (!entity.level().isClientSide()) {
             if (entity instanceof Player player) {
                 ServerLevel level = (ServerLevel)entity.level();
-                float damage = DamageCalculator.calculateRefinedDamage(entity, 1.0F);
+                float damage = DAMAGE_SCALE;
                 int colorCode = entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(ISlashBladeState::getColorCode).orElse(14743295);
                 level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 1.0F, 1.3F);
                 MoonlightSlash.SlashData slashData = new MoonlightSlash.SlashData(damage, colorCode);

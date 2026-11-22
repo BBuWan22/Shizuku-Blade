@@ -1,6 +1,5 @@
 package com.buwan.shizuku.sa;
 
-import com.buwan.shizuku.util.DamageCalculator;
 import mods.flammpfeil.slashblade.slasharts.SakuraEnd;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.core.BlockPos;
@@ -16,6 +15,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * 「雷萨」：向准星方向连续放电式斩击，附带雷闪特殊效果（SE）。
  */
 public class Leisa {
+    private static final float DAMAGE_SCALE = 1.50F;
     private static final int PURPLE_COLOR = 10040319;
     private static final ResourceLocation[] LEISA_SOUNDS = new ResourceLocation[]{
         new ResourceLocation("shizuku", "leisa_sound1"), new ResourceLocation("shizuku", "leisa_sound2"), new ResourceLocation("shizuku", "leisa_sound3")
@@ -24,7 +24,7 @@ public class Leisa {
     public static void doLeisaSlash(LivingEntity player) {
         if (!player.level().isClientSide()) {
             playLeisaSound(player);
-            float damage = DamageCalculator.calculateRefinedDamage(player, 1.0F);
+            float damage = DAMAGE_SCALE;
             SakuraEnd.doSlash(player, 0.0F, 10040319, new Vec3(0.0, 0.2, 0.0), true, true, damage * 0.8F, KnockBacks.cancel);
             SakuraEnd.doSlash(player, -45.0F, 10040319, new Vec3(0.0, 0.1, 0.0), true, true, damage, KnockBacks.cancel);
             SakuraEnd.doSlash(player, 45.0F, 10040319, new Vec3(0.0, 0.1, 0.0), true, true, damage, KnockBacks.cancel);

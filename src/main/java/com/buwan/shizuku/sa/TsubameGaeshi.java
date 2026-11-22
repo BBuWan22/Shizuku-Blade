@@ -1,6 +1,5 @@
 package com.buwan.shizuku.sa;
 
-import com.buwan.shizuku.util.DamageCalculator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +21,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  * 「燕返」：正面三连快速斩，段间间隔很短，靠 playerTick 计时推进。
  */
 public class TsubameGaeshi {
+    private static final float DAMAGE_SCALE = 1.60F;
     private static final int SWALLOW_COLOR = 4286945;
     private static final int SLASH_INTERVAL = 6;
     private static final Map<UUID, TsubameGaeshi.SlashData> activeSlashes = new ConcurrentHashMap<>();
@@ -30,7 +30,7 @@ public class TsubameGaeshi {
         if (!entity.level().isClientSide()) {
             if (entity instanceof Player player) {
                 ServerLevel level = (ServerLevel)entity.level();
-                float damage = DamageCalculator.calculateRefinedDamage(entity, 1.0F);
+                float damage = DAMAGE_SCALE;
                 int colorCode = entity.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(ISlashBladeState::getColorCode).orElse(4286945);
                 level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.5F, 0.8F);
                 TsubameGaeshi.SlashData slashData = new TsubameGaeshi.SlashData(damage, colorCode);
