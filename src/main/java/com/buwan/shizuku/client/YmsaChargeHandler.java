@@ -22,15 +22,6 @@ public class YmsaChargeHandler {
     private static boolean isChargingYmsa = false;
     private static long lastLogMs = 0L;
     private static String lastLogged = "";
-    /**
-     * 需要按住多少 tick 才让合成波出现（10 tick = 500 ms）。
-     *
-     * <p>这一条是「一点就闪」的正解：原来只要 {@code isUsingItem()} 为 true 就立刻开特效，
-     * 而点一下右键也会让使用动作持续 1~2 tick，于是每次点击脚下都闪一下。
-     * 现在必须真的按住超过 500 ms 才亮，轻点完全不出现。</p>
-     */
-    private static final int CHARGE_TICKS_BEFORE_EFFECT = 10;
-
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent event) {
         if (event.phase == Phase.END) {
@@ -49,7 +40,7 @@ public class YmsaChargeHandler {
                         boolean isYmsa = state.getSlashArts().equals(SASlashArtRegistry.Ymsa.get());
                         logState(isUsing, usingTicks, isYmsa);
                         // 必须按住超过阈值才算「蓄力中」：轻点不会出特效
-                        if (isUsing && isYmsa && usingTicks >= CHARGE_TICKS_BEFORE_EFFECT) {
+                        if (isUsing && isYmsa && usingTicks > 0) {
                             if (!isChargingYmsa) {
                                 SynthwaveShaderManager.startShader();
                                 isChargingYmsa = true;
