@@ -3,15 +3,5 @@
   "exhaustion": 0.0,
   "scaling": "never",
   "effects": "hurt",
-  "death_message_type": "default",
-  "tags": [
-    "minecraft:bypasses_invulnerability",
-    "minecraft:bypasses_armor",
-    "minecraft:bypasses_effects",
-    "minecraft:bypasses_enchantments",
-    "minecraft:bypasses_shield",
-    "minecraft:bypasses_cooldown",
-    "minecraft:no_knockback",
-    "minecraft:no_anger"
-  ]
+  "death_message_type": "default"
 }

@@ -285,8 +285,6 @@ public class RoundedRectRenderer {
         addColoredVertexWithNormal(consumer, matrix, normal, x1, y1, 0.0F, color1, nx, ny, nz);
         addColoredVertexWithNormal(consumer, matrix, normal, x1, y2, 0.0F, color2, nx, ny, nz);
         addColoredVertexWithNormal(consumer, matrix, normal, x2, y2, 0.0F, color3, nx, ny, nz);
-        addColoredVertexWithNormal(consumer, matrix, normal, x1, y1, 0.0F, color1, nx, ny, nz);
-        addColoredVertexWithNormal(consumer, matrix, normal, x2, y2, 0.0F, color3, nx, ny, nz);
         addColoredVertexWithNormal(consumer, matrix, normal, x2, y1, 0.0F, color4, nx, ny, nz);
     }
 
@@ -331,8 +329,6 @@ public class RoundedRectRenderer {
             int color2Outer = getColorAtPosition(x2Outer, y2Outer, rectX, rectY, rectWidth, rectHeight, gradient, fallbackColor, time);
             addColoredVertexWithNormal(consumer, matrix, normal, x1Outer, y1Outer, 0.0F, color1Outer, nx, ny, nz);
             addColoredVertexWithNormal(consumer, matrix, normal, x1Inner, y1Inner, 0.0F, color1Inner, nx, ny, nz);
-            addColoredVertexWithNormal(consumer, matrix, normal, x2Inner, y2Inner, 0.0F, color2Inner, nx, ny, nz);
-            addColoredVertexWithNormal(consumer, matrix, normal, x1Outer, y1Outer, 0.0F, color1Outer, nx, ny, nz);
             addColoredVertexWithNormal(consumer, matrix, normal, x2Inner, y2Inner, 0.0F, color2Inner, nx, ny, nz);
             addColoredVertexWithNormal(consumer, matrix, normal, x2Outer, y2Outer, 0.0F, color2Outer, nx, ny, nz);
         }
@@ -386,7 +382,7 @@ public class RoundedRectRenderer {
         Matrix4f matrix = poseStack.last().pose();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR);
         float maxRadius = Math.min(width, height) / 2.0F;

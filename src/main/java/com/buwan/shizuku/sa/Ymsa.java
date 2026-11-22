@@ -12,6 +12,7 @@ import com.buwan.shizuku.mixin.LivingEntityAccessor;
 import com.buwan.shizuku.mixin.ServerLevelAccessor;
 import com.buwan.shizuku.mixin.SynchedEntityDataAccessor;
 import com.buwan.shizuku.network.PacketHandler;
+import com.buwan.shizuku.network.JudgmentImpactPacket;
 import com.buwan.shizuku.network.YmsaForceRemovePacket;
 import com.buwan.shizuku.util.LootDropController;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,17 +48,21 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
 import net.minecraft.world.level.entity.EntityLookup;
 import net.minecraft.world.level.entity.EntitySection;
@@ -69,6 +75,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -88,7 +95,17 @@ import sun.misc.Unsafe;
  * 遇到与其它 mod 的兼容问题时要先看本类与 core/ 下的工具。
  */
 public class Ymsa {
+    public static final int STRIKE_TICK = 8;
+    public static final int RIFT_CLOSED_TICK = 38;
+    public static final int VERDICT_TICK = 42;
+    public static final int DOMAIN_RADIUS = 128;
+    public static final int SHEATH_TICK = 54;
+    public static final int END_TICK = 60;
+    public static final int RECOVERY_FRAME = END_TICK * 3 / 2;
+    public static final ResourceLocation MOTION = new ResourceLocation("shizuku", "combostate/judgment.vmd");
     private static final double KILL_RADIUS = 256.0;
+    /** 解放过载时的处决半径：在原本 320 的基础上再放大，覆盖整片战场。 */
+    private static final double OVERDRIVE_RADIUS = 512.0;
     private static final float KILL_DAMAGE = Float.MAX_VALUE;
     private static final boolean KILL_PLAYERS = true;
     private static final boolean KILL_TOTEM_BYPASS = true;
@@ -101,6 +118,24 @@ public class Ymsa {
     private static final Map<String, Integer> TYPE_SUPPRESSION = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> PENDING_DROPS = new ConcurrentHashMap<>();
     private static final Set<UUID> ANNIHILATED = ConcurrentHashMap.newKeySet();
+    private static final ResourceLocation CHAOS_WITHER = ResourceLocation.fromNamespaceAndPath("chaoswither", "chaos_wither");
+    static final TagKey<EntityType<?>> BOSS_TYPES = TagKey.create(Registries.ENTITY_TYPE,
+        ResourceLocation.fromNamespaceAndPath("forge", "bosses"));
+    private record SpawnBlock(UUID caster, ServerLevel level, AABB area, long expires, Set<EntityType<?>> types,
+                              List<Vec3> bossPositions) {
+        boolean matches(LivingEntity entity) {
+            if (entity.level() != level || level.getGameTime() >= expires || !inVerdictArea(area, entity)
+                    || entity instanceof Player || entity instanceof TamableAnimal pet && caster.equals(pet.getOwnerUUID())) return false;
+            if (types.contains(entity.getType())) return true;
+            // Some encounters create a different boss type at the previous form's position on death.
+            if (level.getGameTime() - (expires - BOSS_SUPPRESS_TICKS) > 20 || !isUnleashedBoss(entity)) return false;
+            for (Vec3 position : bossPositions) {
+                if (position.distanceToSqr(entity.position()) <= 64) return true;
+            }
+            return false;
+        }
+    }
+    private static final List<SpawnBlock> SPAWN_BLOCKS = new ArrayList<>();
     private static final Map<UUID, ServerLevel> ANNIHILATION_PURGE = new ConcurrentHashMap<>();
     private static final Map<UUID, Entity> PENDING_WIPE = new ConcurrentHashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(Ymsa.class);
@@ -167,14 +202,39 @@ public class Ymsa {
         "\u59cb\u7956"
     );
 
+    public static void beginJudgment(LivingEntity caster) {
+        if (caster instanceof ServerPlayer player) {
+            broadcastPhase(player, 1);
+        }
+    }
+
+    private static void broadcastPhase(ServerPlayer player, int phaseTick) {
+        PacketHandler.sendToNearby(JudgmentImpactPacket.from(player, phaseTick), player, DOMAIN_RADIUS * 2.5);
+    }
+
+    public static void openRift(LivingEntity caster) {
+        if (caster instanceof ServerPlayer player) {
+            if (UnleashedJudgment.isCasting(player)) UnleashedVerdicts.get(player.serverLevel().getServer()).lockTargets(player);
+            protectMainHandBlade(player);
+            broadcastPhase(player, STRIKE_TICK);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 0.72F);
+        }
+    }
+
     public static InteractionResult doYmsaSlash(LivingEntity entityIn) {
         if (entityIn instanceof ServerPlayer player) {
-            protectMainHandBlade(player);
+            broadcastPhase(player, VERDICT_TICK);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.PLAYERS, 1.4F, 0.65F);
+            boolean overdrive = UnleashedJudgment.isCasting(player) && JudgmentExecution.supported();
+            if (overdrive) JudgmentExecution.arm();
 
             try {
                 performYmsaCast(player);
             } catch (Exception var3) {
                 LOGGER.error("[SA] Ymsa \u65bd\u6cd5\u5f02\u5e38(\u5df2\u9694\u79bb, \u670d\u52a1\u5668\u7ee7\u7eed\u8fd0\u884c): {}", var3.toString());
+            } finally {
+                // 过载只覆盖本次处决窗口，结束后立刻关掉，避免污染常规战斗
+                if (overdrive) JudgmentExecution.disarm();
             }
 
             return InteractionResult.SUCCESS;
@@ -184,6 +244,10 @@ public class Ymsa {
     }
 
     public static void clearAllSAState() {
+        UnleashedJudgment.clear();
+        processing.clear();
+        lastProcessed.clear();
+        SPAWN_BLOCKS.clear();
         RESPAWN_TRACKER.clear();
         TYPE_SUPPRESSION.clear();
         PENDING_DROPS.clear();
@@ -202,7 +266,7 @@ public class Ymsa {
 
     private static void protectMainHandBlade(ServerPlayer player) {
         ItemStack mainHand = player.getMainHandItem();
-        if (!mainHand.isEmpty() && mainHand.isDamageableItem()) {
+        if (UnleashedJudgment.isBlade(mainHand) && mainHand.isDamageableItem()) {
             mainHand.setDamageValue(mainHand.getDamageValue());
             if (!mainHand.hasTag()) {
                 mainHand.setTag(new CompoundTag());
@@ -216,12 +280,86 @@ public class Ymsa {
 
     private static void performYmsaCast(ServerPlayer player) {
         ServerLevel level = (ServerLevel)player.level();
-        AABB area = player.getBoundingBox().inflate(256.0);
+        boolean unleashed = UnleashedJudgment.isCasting(player);
+        double radius = unleashed ? (JudgmentExecution.armed() ? OVERDRIVE_RADIUS : 320.0) : KILL_RADIUS;
+        AABB area = player.getBoundingBox().inflate(radius);
         int killed = 0;
         int forcedDrops = 0;
         int annihilated = 0;
 
-        for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, area, e -> shouldKill(e, player))) {
+        Set<LivingEntity> targets = new LinkedHashSet<>();
+        JudgmentIndex stores = unleashed ? new JudgmentIndex(level) : null;
+        Set<Entity> cores = new LinkedHashSet<>();
+        if (unleashed) {
+            for (Entity root : stores.verdictTargets(area, player.getUUID())) {
+                if (root instanceof LivingEntity living) targets.add(living);
+                else if (JudgmentEncounters.identifies(root)) cores.add(root);
+            }
+        } else {
+            targets.addAll(level.getEntitiesOfClass(LivingEntity.class, area, e -> shouldKill(e, player)));
+            for (PartEntity<?> part : level.getPartEntities()) {
+                if (part.getBoundingBox().intersects(area) && part.getParent() instanceof LivingEntity parent && shouldKill(parent, player))
+                    targets.add(parent);
+            }
+        }
+        Set<EntityType<?>> bossTypes = new HashSet<>();
+        if (unleashed) {
+            List<Vec3> bossPositions = new ArrayList<>();
+            var verdicts = UnleashedVerdicts.get(level.getServer());
+            var locked = verdicts.land(player);
+            if (!locked.entities().isEmpty()) {
+                for (ServerLevel dimension : level.getServer().getAllLevels()) {
+                    var elsewhere = dimension == level ? stores : new JudgmentIndex(dimension);
+                    for (Entity candidate : elsewhere.entities) {
+                        if (candidate instanceof Player || candidate instanceof net.minecraft.world.entity.OwnableEntity pet
+                                && player.getUUID().equals(pet.getOwnerUUID()) || !locked.matches(candidate)) continue;
+                        if (dimension == level && candidate instanceof LivingEntity living) targets.add(living);
+                        else if (dimension == level) cores.add(candidate);
+                        else {
+                            if (!locked.entities().contains(candidate.getUUID())) verdicts.record(player.getUUID(), candidate, false);
+                            removeUnleashedTarget(elsewhere, candidate, player);
+                        }
+                    }
+                }
+            }
+            verdicts.includeSimultaneousVerdicts(player.getUUID(), level, area);
+            for (LivingEntity target : targets) {
+                boolean boss = isUnleashedBoss(target);
+                verdicts.record(player.getUUID(), target, boss);
+                if (boss) {
+                    bossTypes.add(target.getType());
+                    bossPositions.add(target.position());
+                }
+            }
+            for (Entity core : cores) verdicts.record(player.getUUID(), core, true);
+            JudgmentEncounters.collectControllers(level, area, player.getUUID(), verdicts);
+            for (Entity candidate : stores.entities) {
+                if (!(candidate instanceof LivingEntity) && !(candidate instanceof PartEntity<?>) && verdicts.matches(level, candidate))
+                    cores.add(candidate);
+            }
+            for (Entity core : cores) if (removeUnleashedTarget(stores, core, null)) annihilated++;
+            if (net.minecraftforge.fml.ModList.get().isLoaded("chaoswither")) {
+                EntityType<?> chaos = ForgeRegistries.ENTITY_TYPES.getValue(CHAOS_WITHER);
+                if (chaos != null) bossTypes.add(chaos);
+            }
+            if (!bossTypes.isEmpty()) SPAWN_BLOCKS.add(new SpawnBlock(player.getUUID(), level, area,
+                level.getGameTime() + Math.min(BOSS_SUPPRESS_TICKS, JudgmentConfig.RETENTION.get()), bossTypes, bossPositions));
+        }
+        for (LivingEntity target : targets) {
+            if (unleashed) {
+                if (removeUnleashedTarget(stores, target, player)) {
+                    killed++;
+                    annihilated++;
+                }
+                continue;
+            }
+            if (SuperSteveCompat.isBoss(target)) {
+                if (!target.isAlive()) continue;
+                if (SuperSteveCompat.execute(target)) {
+                    killed++;
+                    continue;
+                }
+            }
             Ymsa.KillOutcome outcome = killTarget(target, player, level);
             if (outcome.killed) {
                 killed++;
@@ -236,13 +374,7 @@ public class Ymsa {
             }
         }
 
-        int playersKilled = 0;
-
-        for (ServerPlayer other : level.getEntitiesOfClass(ServerPlayer.class, area, e -> e != player)) {
-            if (killPlayerTarget(other, player, level)) {
-                playersKilled++;
-            }
-        }
+        int playersKilled = damageNearbyPlayers(player, area, unleashed);
 
         int projectilesCleared = clearHostileProjectiles(level, area);
         int objectsCleared = sweepBossObjects(player, level);
@@ -254,12 +386,127 @@ public class Ymsa {
     }
 
     private static boolean shouldKill(LivingEntity e, ServerPlayer caster) {
-        if (e instanceof Player) {
-            return false;
+        if (e instanceof Player target) {
+            // 解放过载 + 施法者自己开了 PVP 授权，才允许把玩家也纳入审判目标
+            return JudgmentExecution.armed()
+                && !caster.getUUID().equals(target.getUUID())
+                && UnleashedJudgment.canDamagePlayers(caster);
         } else {
             boolean isOwnPet = e instanceof TamableAnimal ta && caster.getUUID().equals(ta.getOwnerUUID());
             return YmsaLogic.shouldKillPure(caster.getUUID().equals(e.getUUID()), isOwnPet, e.isRemoved() && e.getRemovalReason() != null, false);
         }
+    }
+
+    private static EntityLookupAccessor entityIndex(ServerLevel level) {
+        var manager = ((ServerLevelAccessor)level).ymsa$getEntityManager();
+        return (EntityLookupAccessor)((EntityManagerAccessor)manager).ymsa$getVisibleEntityStorage();
+    }
+
+    static boolean isUnleashedBoss(LivingEntity target) {
+        if (isChaosWither(target) || SuperSteveCompat.isBoss(target) || target.getType().is(BOSS_TYPES) || JudgmentEncounters.identifies(target)) return true;
+        var health = target.getAttribute(Attributes.MAX_HEALTH);
+        return health != null && health.getValue() >= 100.0;
+    }
+
+    private static boolean inVerdictArea(AABB area, Entity entity) {
+        return area.intersects(entity.getBoundingBox()) || area.contains(entity.position());
+    }
+
+    private static final Set<UUID> processing = new HashSet<>();
+    private static final Map<UUID, Integer> lastProcessed = new java.util.HashMap<>();
+
+    private static boolean removeUnleashedTarget(JudgmentIndex stores, Entity target, @Nullable ServerPlayer caster) {
+        int tick = stores.level.getServer().getTickCount();
+        UUID id = target.getUUID();
+        if (lastProcessed.getOrDefault(id, -1) == tick || !processing.add(id)) return false;
+        try {
+            lastProcessed.put(id, tick);
+            if (caster != null && target instanceof LivingEntity living) {
+                try {
+                    // 解放路径才是审判真正走的分支（上面的 killTarget 只处理非解放）。
+                    // 这里先把无敌窗口清零、把血量内存值写成 0 —— 且不受下面的
+                    // isUnleashedBoss 条件限制，Boss 同样被内存级打穿。
+                    JudgmentExecution.breakInvulnerability(living);
+                    if (JudgmentExecution.armed()) JudgmentExecution.fakeDeathState(living);
+                    var adapter = JudgmentEncounters.adapter(living);
+                    if (adapter != null) adapter.beforeRemoval(stores.level, living);
+                    else if (living.getClass().getName().startsWith("net.minecraft.") && !isUnleashedBoss(living)) {
+                        living.setLastHurtByPlayer(caster);
+                        living.hurt(ymsaKillSource(stores.level, caster), KILL_DAMAGE);
+                    }
+                } catch (RuntimeException ex) {
+                    LOGGER.warn("[Judgment] death callback failed for {}", id, ex);
+                }
+            }
+            return detachUnleashedTarget(stores, target);
+        } catch (RuntimeException ex) {
+            LOGGER.warn("[Judgment] failed to verify removal of {}", id, ex);
+            return false;
+        } finally {
+            processing.remove(id);
+        }
+    }
+
+    private static boolean detachUnleashedTarget(JudgmentIndex stores, Entity target) {
+        var level = stores.level;
+        int id = target.getId();
+        UUID uuid = target.getUUID();
+        EntityAccessor state = (EntityAccessor)target;
+        EntityInLevelCallback callback = state.ymsa$getLevelCallback();
+        // Let the owning section manager update tracking, ticking and lookup together.
+        // This boss's health and removal overrides can run unrelated combat logic.
+        Set<Entity> pieces = new LinkedHashSet<>();
+        pieces.add(target);
+        pieces.addAll(stores.parts.getOrDefault(target, List.of()));
+        if (target.isMultipartEntity() && target.getParts() != null)
+            for (PartEntity<?> part : target.getParts()) if (part != null) pieces.add(part);
+        state.ymsa$setRemovalReason(RemovalReason.KILLED);
+        try {
+            callback.onRemove(RemovalReason.KILLED);
+        } catch (RuntimeException ex) {
+            LOGGER.warn("[Judgment] failed to unregister target {}", uuid, ex);
+        }
+        state.ymsa$setAddedToWorld(false);
+        level.getPartEntities().removeIf(part -> part.getParent() == target || part == target);
+        boolean removed = true;
+        for (Entity piece : pieces) removed &= stores.detach(piece);
+        if (removed) {
+            JudgmentEncounters.finishEntity(level, target);
+            if (target instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) {
+                var fight = dragon.getDragonFight();
+                if (fight != null && uuid.equals(fight.getDragonUUID()) && !fight.saveData().dragonKilled())
+                    fight.setDragonKilled(dragon);
+            }
+            var packet = new YmsaForceRemovePacket(pieces.stream().mapToInt(Entity::getId).toArray(),
+                pieces.stream().map(Entity::getUUID).toArray(UUID[]::new), new boolean[0]);
+            for (ServerPlayer viewer : level.players()) PacketHandler.sendToPlayer(packet, viewer);
+        }
+        LOGGER.info("[Judgment] target={} id={} removedFromIndex={}", uuid, id, removed);
+        return removed;
+    }
+
+    static void finishChaosEncounter(ServerLevel level, Entity boss) {
+        for (ServerLevel world : level.getServer().getAllLevels()) {
+            for (Entity other : entityIndex(world).ymsa$getById().values()) {
+                if (other.getType() == boss.getType()) return;
+            }
+        }
+        // 0.9fix sets this encounter flag in its constructor and uses it to request new bosses.
+        try {
+            boss.getClass().getField("goneToWorld").setBoolean(null, false);
+        } catch (ReflectiveOperationException ex) {
+            LOGGER.debug("[Judgment] No 0.9fix encounter flag on {}", boss.getType(), ex);
+        }
+    }
+
+    public static boolean blocksChaosSpawn(ServerLevel level, Vec3 position) {
+        return UnleashedVerdicts.get(level.getServer()).blocksSpawn(level, CHAOS_WITHER, position)
+            || SPAWN_BLOCKS.stream().anyMatch(block -> block.level == level && block.types.contains(ForgeRegistries.ENTITY_TYPES.getValue(CHAOS_WITHER))
+            && level.getGameTime() < block.expires && block.area.contains(position));
+    }
+
+    static void clearUnleashedArea(UUID caster) {
+        SPAWN_BLOCKS.removeIf(block -> block.caster.equals(caster));
     }
 
     private static int clearHostileProjectiles(ServerLevel level, AABB area) {
@@ -275,45 +522,23 @@ public class Ymsa {
         return cleared;
     }
 
-    private static boolean killPlayerTarget(ServerPlayer target, ServerPlayer attacker, ServerLevel level) {
-        if (target == attacker) {
-            return false;
-        } else {
-            try {
-                stripAllTotems(target);
-                target.setAbsorptionAmount(0.0F);
-                stripProtections(target);
-                target.setLastHurtByPlayer(attacker);
-                DamageSource src = ymsaKillSource(level, attacker);
-                target.hurt(src, Float.MAX_VALUE);
-
-                for (int i = 0; i < 3 && target.isAlive() && !target.isDeadOrDying(); i++) {
-                    target.getCombatTracker().recordDamage(src, Float.MAX_VALUE);
-                    target.setHealth(0.0F);
-                    target.die(src);
-                }
-
-                if (target.isAlive() && !target.isDeadOrDying()) {
-                    EntityDataAccessor<Float> healthId = LivingEntityAccessor.ymsa$getDataHealthId();
-                    target.getEntityData().set(healthId, 0.0F);
-                    target.getCombatTracker().recordDamage(src, Float.MAX_VALUE);
-                    target.die(src);
-                }
-            } catch (Exception var5) {
-                LOGGER.warn("[SA] Ymsa \u51fb\u6740\u73a9\u5bb6 {} \u5931\u8d25(\u5df2\u9694\u79bb): {}", target.getName().getString(), var5.toString());
-            }
-
-            return !target.isAlive();
+    static int damageNearbyPlayers(ServerPlayer caster, AABB area, boolean unleashed) {
+        if (!UnleashedJudgment.canDamagePlayers(caster)) return 0;
+        int killed = 0;
+        DamageSource source = unleashed && UnleashedJudgment.piercesShields(caster)
+            ? new DamageSource(caster.serverLevel().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
+                .getHolderOrThrow(JUDGMENT_STRIKE), caster)
+            : caster.damageSources().playerAttack(caster);
+        for (ServerPlayer target : caster.serverLevel().getEntitiesOfClass(ServerPlayer.class, area)) {
+            if (target == caster || !target.isAlive() || target.isSpectator() || target.isCreative()
+                    || !caster.canHarmPlayer(target) || (unleashed && UnleashedJudgment.isCasting(target))) continue;
+            if (target.hurt(source, Float.MAX_VALUE) && target.isDeadOrDying()) killed++;
         }
+        return killed;
     }
 
-    private static void stripAllTotems(ServerPlayer target) {
-        for (int i = 0; i < target.getInventory().getContainerSize(); i++) {
-            if (target.getInventory().getItem(i).getItem() == Items.TOTEM_OF_UNDYING) {
-                target.getInventory().setItem(i, ItemStack.EMPTY);
-            }
-        }
-    }
+    private static final ResourceKey<DamageType> JUDGMENT_STRIKE = ResourceKey.create(Registries.DAMAGE_TYPE,
+        new ResourceLocation("shizuku", "judgment_strike"));
 
     private static DamageSource ymsaKillSource(ServerLevel level, @Nullable ServerPlayer attacker) {
         try {
@@ -361,6 +586,11 @@ public class Ymsa {
 
             try {
                 stripProtections(target);
+                // Unsafe 层：先把无敌/受击窗口清零，再把 DATA_HEALTH_ID 的 DataItem.value
+                // 直接写成 0 —— 绕开 setHealth() 的 clamp(0, maxHealth)，
+                // 血量锁 / 无限血 Boss 也吃这一刀。后面的 hurt/die/remove 作为兜底链路保留。
+                JudgmentExecution.breakInvulnerability(target);
+                if (JudgmentExecution.armed()) JudgmentExecution.fakeDeathState(target);
                 target.setLastHurtByPlayer(player);
                 target.hurt(src, Float.MAX_VALUE);
                 if (!target.isDeadOrDying()) {
@@ -444,6 +674,7 @@ public class Ymsa {
 
     private static void suppressRespawn(LivingEntity target, ServerPlayer player) {
         RESPAWN_TRACKER.put(target.getUUID(), new YmsaLogic.CleanupEntry(player.getUUID(), 1200));
+        if (isChaosWither(target)) return;
         if (isBossLike(target)) {
             ResourceLocation key = ForgeRegistries.ENTITY_TYPES.getKey(target.getType());
             if (key != null) {
@@ -803,7 +1034,7 @@ public class Ymsa {
             }
 
             if (removeObjectsFromProtectedList(list, victims)) {
-                deleteFlashfurSaveFiles(level.getServer());
+                if (!UnleashedJudgment.isCasting(player)) deleteFlashfurSaveFiles(level.getServer());
                 cleared = victims.size();
             }
         } catch (ClassNotFoundException var15) {
@@ -864,6 +1095,27 @@ public class Ymsa {
     }
 
     public static void handleServerTickEnd(MinecraftServer server) {
+        UnleashedJudgment.tick(server);
+        if (server.overworld() != null && server.getTickCount() % 20 == 0) {
+            var verdicts = UnleashedVerdicts.get(server);
+            int slot = Math.floorMod(server.getTickCount() / 20, 5);
+            if (verdicts.prune(server.overworld().getGameTime())) {
+                for (ServerLevel level : server.getAllLevels()) {
+                    if (Math.floorMod(level.dimension().location().hashCode(), 5) != slot) continue;
+                    if (!verdicts.hasLoadedMatch(level)) continue;
+                    var stores = new JudgmentIndex(level);
+                    for (Entity entity : stores.entities) {
+                        if (entity instanceof PartEntity<?> part && stores.entities.contains(part.getParent())) continue;
+                        if (verdicts.matches(level, entity)) removeUnleashedTarget(stores, entity, null);
+                    }
+                }
+            }
+        }
+        if (!SPAWN_BLOCKS.isEmpty()) {
+            SPAWN_BLOCKS.removeIf(block -> block.level != server.getLevel(block.level.dimension())
+                || block.level.getGameTime() >= block.expires);
+        }
+        lastProcessed.entrySet().removeIf(entry -> entry.getValue() != server.getTickCount());
         YmsaLogic.tickCleanups(RESPAWN_TRACKER);
         YmsaLogic.tickTypeSuppression(TYPE_SUPPRESSION);
         processPendingPhysicalRemovals(server);
@@ -890,8 +1142,24 @@ public class Ymsa {
         }
     }
 
+    static boolean isChaosWither(Entity entity) {
+        return CHAOS_WITHER.equals(ForgeRegistries.ENTITY_TYPES.getKey(entity.getType()));
+    }
+
     public static boolean shouldCancelJoin(Entity entity) {
+        if (blocksUnleashedJoin(entity)) return true;
         if (entity instanceof LivingEntity living) {
+            if (entity.level() instanceof ServerLevel level && isChaosWither(entity)) {
+                // The boss requests more copies at its fixed position while the first is still present.
+                // Keep the first one targetable until the sword lands.
+                if (level.players().stream().anyMatch(p -> UnleashedJudgment.holdsEnabledBlade(p)
+                        && inVerdictArea(p.getBoundingBox().inflate(320), entity))) {
+                    for (Entity existing : entityIndex(level).ymsa$getById().values()) {
+                        if (existing.getType() == entity.getType() && existing.position().distanceToSqr(entity.position()) < 1.0)
+                            return true;
+                    }
+                }
+            }
             if (RESPAWN_TRACKER.containsKey(living.getUUID())) {
                 return true;
             } else {
@@ -903,13 +1171,30 @@ public class Ymsa {
         }
     }
 
+    public static boolean blocksUnleashedJoin(Entity entity) {
+        if (!(entity.level() instanceof ServerLevel level) || level.getServer().overworld() == null
+                || !level.getServer().isSameThread()) return false;
+        if (!UnleashedVerdicts.get(level.getServer()).matches(level, entity)
+                && !(entity instanceof LivingEntity living && SPAWN_BLOCKS.stream().anyMatch(block -> block.matches(living)))) return false;
+        if (isChaosWither(entity)) finishChaosEncounter(level, entity);
+        return true;
+    }
+
+    @SubscribeEvent
+    public static void onUnleashedEntityJoin(EntityJoinLevelEvent event) {
+        if (blocksUnleashedJoin(event.getEntity())) event.setCanceled(true);
+    }
+
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || !UnleashedJudgment.isCasting(player))
+            UnleashedJudgment.cancelCast(event.getEntity().getUUID());
         clearPlayerState(event.getEntity().getUUID());
     }
 
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerLoggedOutEvent event) {
+        UnleashedJudgment.disconnect(event.getEntity().getUUID());
         clearPlayerState(event.getEntity().getUUID());
     }
 

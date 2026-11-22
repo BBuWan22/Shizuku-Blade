@@ -1,6 +1,6 @@
 package com.buwan.shizuku.server;
 
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import com.buwan.shizuku.sa.UnleashedJudgment;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,23 +10,19 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
 /**
- * 服务端修正：玩家攻击时若手持刀且耐久为 0 / 不可损坏，则跳过扣耐久，
- * 避免前置在异常数据下把刀「打碎」。
+ * 修复无铭「有名」攻击时的负数附魔等级。
  */
 @EventBusSubscriber
 public class BladeDurabilityFix {
     @SubscribeEvent
     public static void onLivingAttack(LivingAttackEvent event) {
         if (event.getSource().getEntity() instanceof LivingEntity attacker) {
-            ItemStack stack = attacker.getMainHandItem();
-            if (stack.getItem() instanceof ItemSlashBlade) {
-                fixBladeEnchantmentLevels(stack);
-            }
+            fixBladeEnchantmentLevels(attacker.getMainHandItem());
         }
     }
 
-    private static void fixBladeEnchantmentLevels(ItemStack stack) {
-        if (stack != null && !stack.isEmpty()) {
+    public static void fixBladeEnchantmentLevels(ItemStack stack) {
+        if (UnleashedJudgment.isBlade(stack)) {
             try {
                 if (stack.hasTag() && stack.getOrCreateTag().contains("Enchantments")) {
                     ListTag enchantments = stack.getEnchantmentTags();

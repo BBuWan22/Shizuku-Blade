@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -86,7 +87,11 @@ public class GalaxyField {
         List<LivingEntity> targets = level.getEntitiesOfClass(
             LivingEntity.class,
             new AABB(cx - 8.0, cy - 4.0, cz - 8.0, cx + 8.0, cy + 8.0, cz + 8.0),
-            e -> e != data.owner && !(e instanceof Player) && e.isAlive() && !e.isRemoved() && e.distanceToSqr(cx, e.getY(), cz) <= 64.0
+            target -> !(target instanceof Player)
+                && target.isAlive()
+                && !target.isRemoved()
+                && target.distanceToSqr(cx, target.getY(), cz) <= 64.0
+                && !(target instanceof OwnableEntity owned && data.owner.getUUID().equals(owned.getOwnerUUID()))
         );
         if (!targets.isEmpty()) {
             float damage = DamageCalculator.calculateRefinedDamage(data.owner, 1.0F) * 0.5F;

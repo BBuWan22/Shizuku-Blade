@@ -99,6 +99,7 @@ public class ShizukuTooltipRenderer {
         tooltip.add(Component.literal("\u9b45\u529b:\u4e0d\u53ef\u4f30\u91cf"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("shift + sa\u91ca\u653e\u540e\u53ef\u51fb\u6740\u602a\u7269\u5e76\u6e05\u9664\u6389\u843d\u7269"));
+        tooltip.add(TooltipEventHandler.judgmentKeyHint());
         tooltip.add(Component.literal("shift + alt \u53ef\u5f00\u542f\u5750\u6807\u4f4d\u79fb"));
         tooltip.add(Component.empty());
         tooltip.add(Component.literal("\u76f8\u89c1\u65f6\u96be\u522b\u4ea6\u96be\uff0c\u4e1c\u98ce\u65e0\u529b\u767e\u82b1\u6b8b"));
@@ -141,13 +142,13 @@ public class ShizukuTooltipRenderer {
 
             int screenWidth = graphics.guiWidth();
             int screenHeight = graphics.guiHeight();
-            if (x + maxWidth > screenWidth) {
-                x = screenWidth - maxWidth - 10;
-            }
-
-            if (y + tooltipHeight > screenHeight) {
-                y = screenHeight - tooltipHeight - 10;
-            }
+            float scale = Math.min(1F, Math.min((screenWidth - 8F) / maxWidth, (screenHeight - 8F) / tooltipHeight));
+            x = Math.max(4, Math.min(x, screenWidth - (int)Math.ceil(maxWidth * scale) - 4));
+            y = Math.max(4, Math.min(y, screenHeight - (int)Math.ceil(tooltipHeight * scale) - 4));
+            poseStack.translate(x, y, 0);
+            poseStack.scale(scale, scale, 1);
+            x = 0;
+            y = 0;
 
             if (!cosmic) {
                 renderShizukuBackground(graphics, x - 80, y - 140, 300, 320);

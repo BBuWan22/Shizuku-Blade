@@ -14,9 +14,11 @@ import net.minecraftforge.network.simple.SimpleChannel;
  * 频道资源名固定为 shizuku:main，收发都走这里，便于统一版本号校验。
  */
 public class PacketHandler {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "7";
     private static int packetId = 0;
-    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation("shizuku", "main"), () -> "1", "1"::equals, "1"::equals);
+    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
+        new ResourceLocation("shizuku", "main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals
+    );
 
     public static void register() {
         INSTANCE.messageBuilder(TimeStopPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
@@ -53,6 +55,14 @@ public class PacketHandler {
             .encoder(FieldActivatePacket::encode)
             .decoder(FieldActivatePacket::decode)
             .consumerMainThread(FieldActivatePacket::handle)
+            .add();
+        INSTANCE.messageBuilder(UnleashedInputPacket.class, packetId++, NetworkDirection.PLAY_TO_SERVER)
+            .encoder(UnleashedInputPacket::encode).decoder(UnleashedInputPacket::decode)
+            .consumerMainThread(UnleashedInputPacket::handle).add();
+        INSTANCE.messageBuilder(JudgmentImpactPacket.class, packetId++, NetworkDirection.PLAY_TO_CLIENT)
+            .encoder(JudgmentImpactPacket::encode)
+            .decoder(JudgmentImpactPacket::decode)
+            .consumerMainThread(JudgmentImpactPacket::handle)
             .add();
     }
 

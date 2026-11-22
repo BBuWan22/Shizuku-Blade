@@ -136,7 +136,7 @@ public final class CosmicShaders {
                 if (OLD_FACE_API) {
                     renderCosmicLegacy(model, target, poseStack, vb);
                 } else {
-                    model.tessellateOnly(vb, poseStack, 15728880, 0, target);
+                    tessellateCosmicNewApi(model, target, poseStack, vb);
                 }
             }
         }
@@ -153,6 +153,22 @@ public final class CosmicShaders {
             face.getMethod("resetLightMap").invoke(null);
             face.getMethod("resetCol").invoke(null);
         } catch (ReflectiveOperationException var5) {
+        }
+    }
+
+    /**
+     * 新版本 SlashBlade 把 PoseStack / lightmap 改成 tessellateOnly 的入参，
+     * 而 1.4.x 只有 tessellateOnly(VertexConsumer, String...)。
+     * 这里用反射调用 5 参重载，找不到时退回 2 参版本，两个版本都能编译且行为合理。
+     * 注意：1.4.x 上 OLD_FACE_API 为 true，压根不会进这个分支。
+     */
+    private static void tessellateCosmicNewApi(WavefrontObject model, String target, PoseStack poseStack, VertexConsumer vb) {
+        try {
+            WavefrontObject.class
+                .getMethod("tessellateOnly", VertexConsumer.class, PoseStack.class, int.class, int.class, String[].class)
+                .invoke(model, vb, poseStack, 15728880, 0, new String[]{target});
+        } catch (ReflectiveOperationException var5) {
+            model.tessellateOnly(vb, target);
         }
     }
 

@@ -88,8 +88,9 @@ public class YmsaForceRemovePacket {
 
     public static void handle(YmsaForceRemovePacket msg, Supplier<Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            for (UUID uuid : msg.entityUuids) {
-                YmsaClientErase.markErased(uuid);
+            boolean identityOnly = msg.typeKills.length == 0;
+            if (!identityOnly) {
+                for (UUID uuid : msg.entityUuids) YmsaClientErase.markErased(uuid);
             }
 
             Minecraft mc = Minecraft.getInstance();
@@ -99,7 +100,11 @@ public class YmsaForceRemovePacket {
                 for (int i = 0; i < msg.entityIds.length; i++) {
                     int id = msg.entityIds[i];
                     Entity entity = level.getEntity(id);
-                    if (entity != null) {
+                    // Unleashed verdicts use identity-only packets. A recycled numeric ID can
+                    // already refer to another mob, especially after changing dimensions.
+                    if (entity == null && identityOnly) entity = ((ClientLevelAccessor)level).ymsa$getPartEntities().get(id);
+                    if (entity != null && (!identityOnly || (i < msg.entityUuids.length
+                            && msg.entityUuids[i].equals(entity.getUUID())))) {
                         try {
                             forceRemoveClientEntity(entity, level);
                             purgeBossTrackers(entity);

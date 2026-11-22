@@ -51,6 +51,39 @@ public class AgentBootstrap {
         return instrumentation;
     }
 
+    public static boolean isRetransformSupported() {
+        Instrumentation inst = instrumentation;
+        return inst != null && inst.isRetransformClassesSupported();
+    }
+
+    /**
+     * JIT 层：对已加载的类强制重新转换。
+     *
+     * 这一步不是"再改一次字节码"这么简单 —— retransformClasses 会让 HotSpot
+     * 把该类所有已编译的 nmethod 标记为 not-entrant（去优化），下一次调用从解释器
+     * 重新跑并重新 JIT。也就是说，哪怕 LivingEntity.hurt 已经被 C2  aggressively
+     * 内联过，这里也能把它拉回我们注入过的版本。
+     *
+     * 返回成功重新转换的类数量。
+     */
+    public static int retransform(Class<?>... classes) {
+        Instrumentation inst = instrumentation;
+        if (inst == null || classes == null || classes.length == 0) return 0;
+        int done = 0;
+        for (Class<?> type : classes) {
+            if (type == null) continue;
+            try {
+                if (!inst.isModifiableClass(type)) continue;
+                inst.retransformClasses(type);
+                done++;
+            } catch (Throwable failure) {
+                System.err.println("[Shizuku] retransform 失败 " + type.getName() + ": " + failure);
+            }
+        }
+        if (done > 0) System.out.println("[Shizuku] 已重新转换 " + done + " 个类（旧 JIT 代码已失效）");
+        return done;
+    }
+
     public static boolean tryAttachAgent() {
         try {
             if (isAgentLoaded()) {

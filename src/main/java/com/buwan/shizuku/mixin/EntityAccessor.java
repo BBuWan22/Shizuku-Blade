@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
  */
 @Mixin(Entity.class)
 public interface EntityAccessor {
+    @Accessor("levelCallback")
+    net.minecraft.world.level.entity.EntityInLevelCallback ymsa$getLevelCallback();
+
     @Accessor("removalReason")
     void ymsa$setRemovalReason(RemovalReason var1);
 

@@ -1,5 +1,6 @@
 package com.buwan.shizuku.client.tooltip;
 
+import com.buwan.shizuku.client.JudgmentControls;
 import com.buwan.shizuku.util.tooltip.ICustomTooltip;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class TooltipEventHandler {
             return false;
         } else {
             String stateKey = stack.getCapability(ItemSlashBlade.BLADESTATE).map(ISlashBladeState::getTranslationKey).orElse("");
+            if ("item.shizuku.ymblade".equals(stateKey) || "shizuku:ymblade".equals(getBladeName(stack))) return true;
             if (!"item.shizuku.mosmicblade".equals(stateKey) && !"shizuku:mosmicblade".equals(getBladeName(stack))) {
                 String displayName = stack.getHoverName().getString();
                 if (displayName.contains("\u65e0\u94ed") && displayName.contains("\u6709\u540d")) {
@@ -85,6 +87,15 @@ public class TooltipEventHandler {
                 return true;
             }
         }
+    }
+
+    static Component judgmentKeyHint() {
+        return Component.translatable("tooltip.shizuku.judgment.open", JudgmentControls.OPEN.getTranslatedKeyMessage());
+    }
+
+    private static boolean isJudgmentBlade(ItemStack stack) {
+        return stack.getItem() instanceof ItemSlashBlade && getTooltipTypeForBlade(stack) == ICustomTooltip.TooltipType.DEFAULT
+            && isShizukuNamedBlade(stack);
     }
 
     private static ICustomTooltip.TooltipType getTooltipTypeForBlade(ItemStack stack) {
@@ -133,7 +144,7 @@ public class TooltipEventHandler {
             if (!shareTag.isEmpty()) {
                 String translationKey = shareTag.getString("translationKey");
                 if (translationKey.startsWith("item.shizuku.")) {
-                    return translationKey.substring("item.".length());
+                    return translationKey.substring("item.".length()).replaceFirst("\\.", ":");
                 }
             }
 
@@ -142,7 +153,7 @@ public class TooltipEventHandler {
                 CompoundTag bladeState = forgeCaps.getCompound("slashblade:bladestate");
                 String translationKey = bladeState.getString("translationKey");
                 if (translationKey.startsWith("item.shizuku.")) {
-                    return translationKey.substring("item.".length());
+                    return translationKey.substring("item.".length()).replaceFirst("\\.", ":");
                 }
             }
 
@@ -172,6 +183,9 @@ public class TooltipEventHandler {
             tooltip.add(Component.literal("\u9b45\u529b:\u4e0d\u53ef\u4f30\u91cf"));
             tooltip.add(Component.empty());
             tooltip.add(Component.literal("shift + sa\u91ca\u653e\u540e\u53ef\u51fb\u6740\u602a\u7269\u5e76\u6e05\u9664\u6389\u843d\u7269"));
+            if (isJudgmentBlade(stack)) {
+                tooltip.add(judgmentKeyHint());
+            }
             tooltip.add(Component.literal("shift + alt \u53ef\u5f00\u542f\u5750\u6807\u4f4d\u79fb"));
             tooltip.add(Component.empty());
             tooltip.add(Component.literal("\u76f8\u89c1\u65f6\u96be\u522b\u4ea6\u96be\uff0c\u4e1c\u98ce\u65e0\u529b\u767e\u82b1\u6b8b"));

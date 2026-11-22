@@ -1,0 +1,42 @@
+# ---- Gradle ----
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# ---- IDE ----
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.classpath
+.project
+.settings/
+bin/
+.vscode/
+*.launch
+
+# ---- Minecraft 开发环境运行目录 ----
+run/
+run-data/
+logs/
+crash-reports/
+
+# ---- 构建/调试产物 ----
+*.log
+jstack-*.txt
+hs_err_pid*.log
+*.hprof
+
+# ---- 本地网络加速配置（每台机器不同，不入库）----
+gradle-mirror.init.gradle
+
+# ---- 截图 ----
+client-*.png
+judgment-panel.png
+
+# ---- 系统文件 ----
+.DS_Store
+Thumbs.db
+desktop.ini

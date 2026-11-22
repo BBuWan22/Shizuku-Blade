@@ -2,7 +2,6 @@ package com.buwan.shizuku.registry;
 
 import com.buwan.shizuku.SlashEffectUtils;
 import com.buwan.shizuku.shizuku;
-import com.buwan.shizuku.client.SynthwaveShaderManager;
 import com.buwan.shizuku.sa.CosmicCrossSlash;
 import com.buwan.shizuku.sa.GalaxyArc;
 import com.buwan.shizuku.sa.Leisa;
@@ -28,7 +27,6 @@ import mods.flammpfeil.slashblade.registry.combo.ComboState.TimeLineTickAction;
 import mods.flammpfeil.slashblade.registry.combo.ComboState.TimeoutNext;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -214,23 +212,26 @@ public class SAComboRegistry {
     public static final RegistryObject<ComboState> YMSA = COMBO_STATES.register(
         "ymsa",
         Builder.newInstance()
-            .startAndEnd(400, 430)
+            .startAndEnd(0, Ymsa.RECOVERY_FRAME)
             .priority(50)
-            .motionLoc(DefaultResources.ExMotionLocation)
-            .next(TimeoutNext.buildFromFrame(15, entity -> SlashBlade.prefix("none")))
-            .nextOfTimeout(entity -> shizuku.prefix("all_reuse"))
-            .addTickAction(TimeLineTickAction.getBuilder().put(3, entityIn -> {
-                if (entityIn instanceof LivingEntity) {
-                    Ymsa.doYmsaSlash(entityIn);
+            .motionLoc(Ymsa.MOTION)
+            .next(TimeoutNext.buildFromFrame(Ymsa.RECOVERY_FRAME, entity -> SlashBlade.prefix("none")))
+            .nextOfTimeout(entity -> SlashBlade.prefix("none"))
+            .addTickAction(entity -> {
+                if (entity instanceof net.minecraft.server.level.ServerPlayer player
+                        && com.buwan.shizuku.sa.UnleashedJudgment.isCasting(player)) return;
+                long tick = ComboState.getElapsed(entity);
+                if (tick == 1) {
+                    Ymsa.beginJudgment(entity);
+                } else if (tick == Ymsa.STRIKE_TICK) {
+                    Ymsa.openRift(entity);
+                } else if (tick == Ymsa.VERDICT_TICK) {
+                    Ymsa.doYmsaSlash(entity);
+                } else if (tick == Ymsa.SHEATH_TICK) {
+                    AttackManager.playQuickSheathSoundAction(entity);
                 }
-            }).build())
-            .releaseAction((user, elapsed) -> {
-                if (user.level().isClientSide && user instanceof Player) {
-                    SynthwaveShaderManager.stopShader();
-                }
-
-                return ComboState.releaseActionQuickCharge(user, elapsed);
-            })::build
+            })
+            .releaseAction(ComboState::releaseActionQuickCharge)::build
     );
     public static final RegistryObject<ComboState> SUMMER_SLASH = COMBO_STATES.register(
         "summer_slash",

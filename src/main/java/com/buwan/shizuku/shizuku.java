@@ -2,6 +2,7 @@ package com.buwan.shizuku;
 
 import com.buwan.shizuku.client.CosmicBladeRenderer;
 import com.buwan.shizuku.client.FieldActivateInput;
+import com.buwan.shizuku.client.JudgmentVisuals;
 import com.buwan.shizuku.client.GalaxyFieldRenderer;
 import com.buwan.shizuku.client.SynthwaveShaderRegister;
 import com.buwan.shizuku.client.SynthwaveShaderRenderer;
@@ -33,7 +34,6 @@ import com.buwan.shizuku.sa.VoidPrison;
 import com.buwan.shizuku.sa.Yingsa;
 import com.buwan.shizuku.sa.Ymsa;
 import com.buwan.shizuku.se.SERegistry;
-import com.buwan.shizuku.server.BladeDurabilityFix;
 import com.mojang.logging.LogUtils;
 import java.util.Map.Entry;
 import mods.flammpfeil.slashblade.SlashBladeCreativeGroup;
@@ -60,8 +60,11 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -144,6 +147,7 @@ public class shizuku {
 
     public shizuku() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, com.buwan.shizuku.sa.JudgmentConfig.SPEC);
         CREATIVE_MODE_TABS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
         ModTileEntities.BLOCK_ENTITIES.register(modEventBus);
@@ -156,10 +160,18 @@ public class shizuku {
         SASlashArtRegistry.SLASH_ARTS.register(modEventBus);
         SOUND_EVENTS.register(modEventBus);
         if (FMLEnvironment.dist.isClient()) {
+            ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, JudgmentVisuals.CONFIG);
             modEventBus.addListener(SynthwaveShaderRegister::registerShaders);
             modEventBus.addListener(CosmicShaders.ModEvents::onRegisterShaders);
             modEventBus.addListener(CosmicShaders.ModEvents::onTextureStitch);
-            modEventBus.addListener(event -> ModMenus.onClientSetup());
+            // 必须写明事件类型：反编译丢泛型后 lambda 会推断成 Event，模组总线要求 IModBusEvent，运行期会直接抛
+            modEventBus.addListener((FMLClientSetupEvent event) -> {
+                ModMenus.onClientSetup();
+                // 解放能力默认关闭：每次启动把本地开关强制复位，避免上一次会话的状态残留。
+                // 能否真正开启由服务端 OP 校验决定，这里只保证界面从"关闭"态起步。
+                com.buwan.shizuku.client.JudgmentVisuals.UNLEASHED.set(false);
+                com.buwan.shizuku.client.JudgmentVisuals.UNLEASHED.save();
+            });
         }
 
         ITEMS.register(modEventBus);
@@ -175,7 +187,6 @@ public class shizuku {
         MinecraftForge.EVENT_BUS.register(Ymsa.class);
         MinecraftForge.EVENT_BUS.register(SummerSlash.class);
         MinecraftForge.EVENT_BUS.register(GalaxyField.class);
-        MinecraftForge.EVENT_BUS.register(BladeDurabilityFix.class);
         modEventBus.addListener(this::commonSetup);
         if (FMLEnvironment.dist.isClient()) {
             MinecraftForge.EVENT_BUS.register(TimeStopRenderer.getInstance());
@@ -192,7 +203,13 @@ public class shizuku {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> PacketHandler.register());
+        event.enqueueWork(() -> {
+            PacketHandler.register();
+            // 启动自检：把 Unsafe 解析到的字段偏移打出来。
+            // 负数表示该字段在当前命名环境（dev=Mojang 名 / 生产=SRG 名）里没找到，
+            // 对应能力会自动跳过而不是抛异常。
+            LOGGER.info("[Shizuku] \u5ba1\u5224\u5904\u51b3\u5c42\u81ea\u68c0: {}", com.buwan.shizuku.sa.JudgmentExecution.describe());
+        });
     }
 
     @SubscribeEvent
