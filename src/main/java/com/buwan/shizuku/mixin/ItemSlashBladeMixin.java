@@ -15,12 +15,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /** 修复无铭「有名」攻击或挖掘时的负数附魔等级。 */
 @Mixin(ItemSlashBlade.class)
 public class ItemSlashBladeMixin {
-    @Inject(method = "hurtEnemy", at = @At("HEAD"))
+    @Inject(method = "hurtEnemy", at = @At("HEAD"), require = 0)
     private void shizuku$fixEnchantmentsOnHit(ItemStack stack, LivingEntity target, LivingEntity attacker, CallbackInfoReturnable<Boolean> cir) {
         BladeDurabilityFix.fixBladeEnchantmentLevels(stack);
     }
 
-    @Inject(method = "mineBlock", at = @At("HEAD"))
+    @Inject(method = "mineBlock", at = @At("HEAD"), require = 0)
     private void shizuku$fixEnchantmentsOnMine(
         ItemStack stack, Level worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving, CallbackInfoReturnable<Boolean> cir
     ) {

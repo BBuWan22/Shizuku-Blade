@@ -231,7 +231,14 @@ public class SAComboRegistry {
                     AttackManager.playQuickSheathSoundAction(entity);
                 }
             })
-            .releaseAction(ComboState::releaseActionQuickCharge)::build
+            .releaseAction((user, elapsed) -> {
+                // 与 1.20.1 Fabric 移植版一致：SA 释放时立刻收掉合成波，
+                // 避免蓄力状态抖动导致特效一直挂在屏幕上（客户端才有这个特效）
+                if (user.level() != null && user.level().isClientSide()) {
+                    com.buwan.shizuku.client.SynthwaveShaderManager.stopShader();
+                }
+                return ComboState.releaseActionQuickCharge(user, elapsed);
+            })::build
     );
     public static final RegistryObject<ComboState> SUMMER_SLASH = COMBO_STATES.register(
         "summer_slash",

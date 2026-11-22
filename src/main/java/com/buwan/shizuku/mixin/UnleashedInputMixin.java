@@ -22,7 +22,7 @@ public class UnleashedInputMixin {
     @Unique private boolean shizuku$damagePlayers;
     @Unique private ClientPacketListener shizuku$connection;
 
-    @Inject(method = "tick", at = @At("TAIL"))
+    @Inject(method = "tick", at = @At("TAIL"), require = 0)
     private void shizuku$sampleUse(CallbackInfo ci) {
         Minecraft mc = (Minecraft)(Object)this;
         if (shizuku$connection != mc.getConnection()) {

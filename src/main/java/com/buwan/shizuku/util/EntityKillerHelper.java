@@ -297,16 +297,12 @@ public class EntityKillerHelper {
         tryInvokeMethod(entity, new String[]{"discard"}, new Class[0], new Object[0]);
         setFieldValue(entity, new String[]{"removalReason"}, RemovalReason.KILLED);
         setFieldValue(entity, new String[]{"removed"}, true);
-        new Thread(() -> {
-            try {
-                Thread.sleep(2L);
-                if (player.level() instanceof ServerLevel serverLevel) {
-                    serverLevel.getServer().execute(() -> removeServerLevelEntity(entity));
-                }
-            } catch (InterruptedException var4) {
-                var4.printStackTrace();
-            }
-        }).start();
+        // 原来专门开一个线程 Thread.sleep(2) 再回主线程：既没必要也不安全（跨线程）。
+        // 直接交给服务端 tick 调度，下一 tick 执行。
+        if (player.level() instanceof ServerLevel serverLevel) {
+            serverLevel.getServer().tell(new net.minecraft.server.TickTask(1,
+                    () -> removeServerLevelEntity(entity)));
+        }
     }
 
     public static void playEntityDeathSound(Entity entity) {

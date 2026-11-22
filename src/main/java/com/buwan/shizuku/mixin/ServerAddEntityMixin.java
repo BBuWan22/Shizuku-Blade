@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(ServerLevel.class)
 public class ServerAddEntityMixin {
-    @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "addEntity", at = @At("HEAD"), cancellable = true, require = 0)
     private void ymsa$blockSuppressedJoin(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (Ymsa.shouldCancelJoin(entity)) {
             cir.setReturnValue(false);

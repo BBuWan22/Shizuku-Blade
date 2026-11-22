@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(MinecraftServer.class)
 public class ServerMaintenanceMixin {
-    @Inject(method = "tickServer", at = @At("RETURN"))
+    @Inject(method = "tickServer", at = @At("RETURN"), require = 0)
     private void ymsa$serverTickEnd(BooleanSupplier hasTimeLeft, CallbackInfo ci) {
         Ymsa.handleServerTickEnd((MinecraftServer)(Object)this);
     }
 
-    @Inject(method = "stopServer", at = @At("HEAD"))
+    @Inject(method = "stopServer", at = @At("HEAD"), require = 0)
     private void ymsa$serverStop(CallbackInfo ci) {
         Ymsa.clearAllSAState();
     }
