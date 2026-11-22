@@ -6,7 +6,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
 public record UnleashedInputPacket(Action action) {
-    public enum Action { PRESS, RELEASE, CANCEL, ENABLE, DISABLE, DAMAGE_PLAYERS_ON, DAMAGE_PLAYERS_OFF, PIERCE_SHIELDS_ON, PIERCE_SHIELDS_OFF }
+    public enum Action { PRESS, RELEASE, CANCEL, ENABLE, DISABLE, DAMAGE_PLAYERS_ON, DAMAGE_PLAYERS_OFF }
 
     public void encode(FriendlyByteBuf buf) { buf.writeEnum(action); }
     public static UnleashedInputPacket decode(FriendlyByteBuf buf) {

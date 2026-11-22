@@ -49,7 +49,6 @@ public final class JudgmentVisuals {
     public static final ForgeConfigSpec.ConfigValue<Boolean> SCREEN_EFFECT;
     public static final ForgeConfigSpec.BooleanValue UNLEASHED;
     public static final ForgeConfigSpec.BooleanValue DAMAGE_PLAYERS;
-    public static final ForgeConfigSpec.BooleanValue PIERCE_SHIELDS;
     public static final ForgeConfigSpec CONFIG;
     private static final ItemStack DIAMOND_SWORD = new ItemStack(Items.DIAMOND_SWORD);
     private static final float SWORD_SCALE = 20;
@@ -78,7 +77,6 @@ public final class JudgmentVisuals {
         SCREEN_EFFECT = builder.define("judgmentScreenEffect", true);
         UNLEASHED = builder.define("judgmentUnleashed", false);
         DAMAGE_PLAYERS = builder.define("judgmentDamagePlayers", false);
-        PIERCE_SHIELDS = builder.define("judgmentPierceShields", false);
         CONFIG = builder.build();
     }
 

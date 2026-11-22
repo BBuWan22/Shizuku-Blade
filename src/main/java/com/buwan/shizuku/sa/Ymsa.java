@@ -525,10 +525,7 @@ public class Ymsa {
     static int damageNearbyPlayers(ServerPlayer caster, AABB area, boolean unleashed) {
         if (!UnleashedJudgment.canDamagePlayers(caster)) return 0;
         int killed = 0;
-        DamageSource source = unleashed && UnleashedJudgment.piercesShields(caster)
-            ? new DamageSource(caster.serverLevel().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                .getHolderOrThrow(JUDGMENT_STRIKE), caster)
-            : caster.damageSources().playerAttack(caster);
+        DamageSource source = caster.damageSources().playerAttack(caster);
         for (ServerPlayer target : caster.serverLevel().getEntitiesOfClass(ServerPlayer.class, area)) {
             if (target == caster || !target.isAlive() || target.isSpectator() || target.isCreative()
                     || !caster.canHarmPlayer(target) || (unleashed && UnleashedJudgment.isCasting(target))) continue;
@@ -536,9 +533,6 @@ public class Ymsa {
         }
         return killed;
     }
-
-    private static final ResourceKey<DamageType> JUDGMENT_STRIKE = ResourceKey.create(Registries.DAMAGE_TYPE,
-        new ResourceLocation("shizuku", "judgment_strike"));
 
     private static DamageSource ymsaKillSource(ServerLevel level, @Nullable ServerPlayer attacker) {
         try {

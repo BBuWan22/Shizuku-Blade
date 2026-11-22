@@ -20,7 +20,6 @@ public class UnleashedInputMixin {
     @Unique private boolean shizuku$held;
     @Unique private boolean shizuku$enabled;
     @Unique private boolean shizuku$damagePlayers;
-    @Unique private boolean shizuku$pierceShields;
     @Unique private ClientPacketListener shizuku$connection;
 
     @Inject(method = "tick", at = @At("TAIL"))
@@ -30,7 +29,6 @@ public class UnleashedInputMixin {
             shizuku$held = false;
             shizuku$enabled = false;
             shizuku$damagePlayers = false;
-            shizuku$pierceShields = false;
             shizuku$connection = mc.getConnection();
         }
         if (shizuku$connection == null || mc.player == null) return;
@@ -40,11 +38,6 @@ public class UnleashedInputMixin {
             shizuku$damagePlayers = damagePlayers;
         }
         boolean enabled = JudgmentVisuals.UNLEASHED.get();
-        boolean pierceShields = JudgmentVisuals.PIERCE_SHIELDS.get();
-        if (pierceShields != shizuku$pierceShields) {
-            PacketHandler.INSTANCE.sendToServer(new UnleashedInputPacket(pierceShields ? Action.PIERCE_SHIELDS_ON : Action.PIERCE_SHIELDS_OFF));
-            shizuku$pierceShields = pierceShields;
-        }
         if (enabled != shizuku$enabled) {
             PacketHandler.INSTANCE.sendToServer(new UnleashedInputPacket(enabled ? Action.ENABLE : Action.DISABLE));
             shizuku$enabled = enabled;

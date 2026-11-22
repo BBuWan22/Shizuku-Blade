@@ -21,7 +21,6 @@ public final class UnleashedJudgment {
     private static final Map<UUID, Use> uses = new HashMap<>();
     private static final Set<UUID> enabled = new HashSet<>();
     private static final Set<UUID> damagePlayers = new HashSet<>();
-    private static final Set<UUID> pierceShields = new HashSet<>();
     private UnleashedJudgment() {}
 
     public static boolean isBlade(ItemStack stack) {
@@ -41,11 +40,6 @@ public final class UnleashedJudgment {
 
     public static void input(ServerPlayer player, Action action) {
         UUID id = player.getUUID();
-        if (action == Action.PIERCE_SHIELDS_ON || action == Action.PIERCE_SHIELDS_OFF) {
-            if (action == Action.PIERCE_SHIELDS_ON) pierceShields.add(id);
-            else pierceShields.remove(id);
-            return;
-        }
         if (action == Action.DAMAGE_PLAYERS_ON || action == Action.DAMAGE_PLAYERS_OFF) {
             if (action == Action.DAMAGE_PLAYERS_ON) damagePlayers.add(id);
             else damagePlayers.remove(id);
@@ -169,14 +163,12 @@ public final class UnleashedJudgment {
     }
 
     static void disconnect(UUID id) {
-        pierceShields.remove(id);
         damagePlayers.remove(id);
         enabled.remove(id);
         cancelCast(id);
     }
 
     public static void clear() {
-        pierceShields.clear();
         damagePlayers.clear();
         enabled.clear();
         uses.clear();
@@ -185,9 +177,5 @@ public final class UnleashedJudgment {
     static boolean canDamagePlayers(ServerPlayer player) {
         return damagePlayers.contains(player.getUUID()) && player.serverLevel().getServer().isPvpAllowed()
             && isBlade(player.getMainHandItem());
-    }
-
-    static boolean piercesShields(ServerPlayer player) {
-        return pierceShields.contains(player.getUUID());
     }
 }
