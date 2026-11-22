@@ -31,19 +31,15 @@ public class CosmicCrossSlash {
                 SakuraEnd.doSlash(player, 45.0F, colorCode, new Vec3(0.0, 0.2, 0.8), true, true, finalDamage * 0.6F, KnockBacks.cancel);
                 Vec3 frontPos = entity.position().add(entity.getLookAngle().scale(3.0));
                 createStarburstParticles(level, frontPos);
-                level.getServer().execute(() -> {
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException var7) {
-                        var7.printStackTrace();
-                    }
-
+                // 原来是 getServer().execute(() -> { Thread.sleep(100); ... })：sleep 跑在服务端主线程上，
+                // 每次放这招都会卡服 100 ms。改成 2 tick（≈100 ms）后由服务端 tick 调度执行。
+                level.getServer().tell(new net.minecraft.server.TickTask(2, () -> {
                     if (entity.isAlive() && !entity.isRemoved()) {
                         SakuraEnd.doSlash(player, -45.0F, colorCode, new Vec3(0.0, 0.2, 0.8), false, true, finalDamage * 0.6F, KnockBacks.smash);
                         createCrossExplosion(level, frontPos);
                         level.playSound(null, frontPos.x, frontPos.y, frontPos.z, SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 1.0F, 1.5F);
                     }
-                });
+                }));
             }
         }
     }

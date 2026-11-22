@@ -130,6 +130,12 @@ public class ShapedTableCraftingRecipe implements ITierCraftingRecipe {
         return astring;
     }
 
+    /** 产物指定的命名刀 id（可能为 null）。JEI 展示产物时按它取完整定义刀。 */
+    @javax.annotation.Nullable
+    public ResourceLocation getOutputBlade() {
+        return this.outputBlade;
+    }
+
     public int getWidth() {
         return this.width;
     }
