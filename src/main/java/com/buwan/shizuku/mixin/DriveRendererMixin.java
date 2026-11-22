@@ -30,7 +30,7 @@ public abstract class DriveRendererMixin {
     private static final ResourceLocation DAOGUANG_MODEL = new ResourceLocation("shizuku", "model/util/daoguang.obj");
     private static final float DAOGUANG_SCALE = 0.02F;
 
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true, remap = false)
+    @Inject(method = "render", at = @At("HEAD"), cancellable = true, remap = false, require = 0)
     private void shizuku$renderDaoguang(
         EntityDrive entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci
     ) {

@@ -31,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SlashEffectRendererMixin {
     private static final ResourceLocation SLASH_MODEL = new ResourceLocation("slashblade", "model/util/slash.obj");
 
-    @Inject(method = "render", at = @At("TAIL"), remap = false)
+    @Inject(method = "render", at = @At("TAIL"), remap = false, require = 0)
     private void shizuku$renderCosmicSlash(
         EntitySlashEffect entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci
     ) {
