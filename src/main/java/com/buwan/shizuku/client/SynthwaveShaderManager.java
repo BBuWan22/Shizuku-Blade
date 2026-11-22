@@ -46,8 +46,12 @@ public class SynthwaveShaderManager {
     private static final boolean DEBUG = Boolean.getBoolean("shizuku.synthwave.debug");
     /** 淡入淡出时长（毫秒）；不再延迟，避免「点了半天才出来」。 */
     private static final long FADE_MS = 150L;
+    /** 开启后先静默这么久再开始淡入（避免轻点右键时闪一下），与 Fabric/NeoForge 版一致。 */
+    private static final long DELAY_MS = 200L;
     /** 期望状态：true = 正在蓄力，特效该亮着（按住右键时一直为 true）。 */
     private static boolean wantEnabled;
+    /** 本次「蓄力」开始的时刻，用于 200ms 延迟。 */
+    private static long enabledAt;
     /** 当前强度 0..1，写进 U_Fade。 */
     private static float fade;
     /** 上一帧时间戳，用于按真实时间推进 fade。 */
@@ -190,7 +194,10 @@ public class SynthwaveShaderManager {
         float step = dt * 1000.0F / (float)FADE_MS;
 
         if (wantEnabled) {
-            fade = Math.min(1.0F, fade + step);
+            // 延迟期内 fade 保持 0：轻点右键（使用动作只持续 1~2 tick）时画面完全不可见
+            if (now - enabledAt >= DELAY_MS) {
+                fade = Math.min(1.0F, fade + step);
+            }
             isSynthwaveEnabled = true;
         } else {
             fade = Math.max(0.0F, fade - step);
@@ -209,6 +216,7 @@ public class SynthwaveShaderManager {
             animationStartTime = System.currentTimeMillis();   // 新的一次蓄力：扫描从头开始
         }
         wantEnabled = true;
+        enabledAt = System.currentTimeMillis();
         if (DEBUG) LOGGER.info("[synthwave] start (charging)");
     }
 
