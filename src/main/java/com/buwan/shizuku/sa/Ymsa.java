@@ -386,15 +386,9 @@ public class Ymsa {
     }
 
     private static boolean shouldKill(LivingEntity e, ServerPlayer caster) {
-        if (e instanceof Player target) {
-            // 解放过载 + 施法者自己开了 PVP 授权，才允许把玩家也纳入审判目标
-            return JudgmentExecution.armed()
-                && !caster.getUUID().equals(target.getUUID())
-                && UnleashedJudgment.canDamagePlayers(caster);
-        } else {
-            boolean isOwnPet = e instanceof TamableAnimal ta && caster.getUUID().equals(ta.getOwnerUUID());
-            return YmsaLogic.shouldKillPure(caster.getUUID().equals(e.getUUID()), isOwnPet, e.isRemoved() && e.getRemovalReason() != null, false);
-        }
+        if (e instanceof Player) return false;
+        boolean isOwnPet = e instanceof TamableAnimal ta && caster.getUUID().equals(ta.getOwnerUUID());
+        return YmsaLogic.shouldKillPure(caster.getUUID().equals(e.getUUID()), isOwnPet, e.isRemoved() && e.getRemovalReason() != null, false);
     }
 
     private static EntityLookupAccessor entityIndex(ServerLevel level) {
@@ -416,6 +410,7 @@ public class Ymsa {
     private static final Map<UUID, Integer> lastProcessed = new java.util.HashMap<>();
 
     private static boolean removeUnleashedTarget(JudgmentIndex stores, Entity target, @Nullable ServerPlayer caster) {
+        if (target instanceof Player) return false;
         int tick = stores.level.getServer().getTickCount();
         UUID id = target.getUUID();
         if (lastProcessed.getOrDefault(id, -1) == tick || !processing.add(id)) return false;
@@ -524,12 +519,13 @@ public class Ymsa {
 
     static int damageNearbyPlayers(ServerPlayer caster, AABB area, boolean unleashed) {
         if (!UnleashedJudgment.canDamagePlayers(caster)) return 0;
+        ServerLevel level = caster.serverLevel();
+        DamageSource source = ymsaKillSource(level, caster);
+        if (source.getEntity() == null) source = level.damageSources().playerAttack(caster);
         int killed = 0;
-        DamageSource source = caster.damageSources().playerAttack(caster);
-        for (ServerPlayer target : caster.serverLevel().getEntitiesOfClass(ServerPlayer.class, area)) {
-            if (target == caster || !target.isAlive() || target.isSpectator() || target.isCreative()
-                    || !caster.canHarmPlayer(target) || (unleashed && UnleashedJudgment.isCasting(target))) continue;
-            if (target.hurt(source, Float.MAX_VALUE) && target.isDeadOrDying()) killed++;
+        for (ServerPlayer target : level.getEntitiesOfClass(ServerPlayer.class, area, player -> player != caster && player.isAlive())) {
+            if (!caster.canHarmPlayer(target) || (unleashed && UnleashedJudgment.isCasting(target))) continue;
+            if (target.hurt(source, KILL_DAMAGE) && target.isDeadOrDying()) killed++;
         }
         return killed;
     }
