@@ -15,6 +15,17 @@ public interface LivingEntityAccessor {
     @Invoker("dropAllDeathLoot")
     void ymsa$dropAllDeathLoot(DamageSource var1);
 
+    /** 死亡标记：die() 成功会把 true 置上，用于区分「真的死了」与「血量 0 但被模组吞掉」。 */
+    @Accessor("dead")
+    boolean ymsa$isDead();
+
+    @Accessor("dead")
+    void ymsa$setDead(boolean value);
+
+    /** 击杀分数（awardKillScore 用）。 */
+    @Accessor("deathScore")
+    int ymsa$getDeathScore();
+
     @Accessor("DATA_HEALTH_ID")
     static EntityDataAccessor<Float> ymsa$getDataHealthId() {
         throw new AssertionError();
