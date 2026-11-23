@@ -39,6 +39,13 @@ public class YmsaRenderKiller {
     }
 
     public static void killType(EntityType<?> type) {
+        // 只处理原版实体：模组实体常有自定义渲染器，别的 mod 会把自己的渲染器强转回去
+        // （例如 SuperSteve 的 SSEvents$Client#renderLevelStage 会 cast 成 SuperSteveRenderer），
+        // 我们把整类换成 NullRenderer 就会让它们 ClassCastException 崩客户端。
+        if (type != null && !"minecraft".equals(
+                net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(type).getNamespace())) {
+            return;
+        }
         if (type != null) {
             KILLED_TYPES.add(type);
             Minecraft mc = Minecraft.getInstance();

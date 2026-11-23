@@ -23,8 +23,15 @@ public record JudgmentImpactPacket(UUID caster, long startTick, int phaseTick, V
      * {@code beginJudgment} 时锁定朝向，后续阶段都用这份朝向发包。</p>
      */
     public static JudgmentImpactPacket from(ServerPlayer player, int phaseTick, float yaw, float pitch) {
+        return from(player, phaseTick, yaw, pitch,
+                player.getEyePosition().x, player.getEyePosition().y, player.getEyePosition().z);
+    }
+
+    /** 同时锁定施法瞬间的眼睛位置：这样落点不会因为施法过程中走动而漂移。 */
+    public static JudgmentImpactPacket from(ServerPlayer player, int phaseTick, float yaw, float pitch,
+                                          double x, double y, double z) {
         long start = player.level().getGameTime() - phaseTick;
-        return new JudgmentImpactPacket(player.getUUID(), start, phaseTick, player.getEyePosition(), player.getYRot(), player.getXRot());
+        return new JudgmentImpactPacket(player.getUUID(), start, phaseTick, new Vec3(x, y, z), yaw, pitch);
     }
 
     public void encode(FriendlyByteBuf buf) {
